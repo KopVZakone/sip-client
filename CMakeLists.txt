@@ -34,6 +34,26 @@ target_link_libraries(appsip-client
     PRIVATE Qt6::Quick
 )
 
+# Компиляция и подключение библиотек
+set(PJSIP_PROJECT_ROOT "/usr/local/src/pjproject-2.16")
+add_subdirectory(${PJSIP_PROJECT_ROOT} "${CMAKE_CURRENT_BINARY_DIR}/pjsip_build")
+set(PJSIP_LIBS
+    pjsua2 pjsip-ua pjsip-simple pjsip
+    pjmedia-codec pjmedia-audiodev
+    pjmedia-videodev pjmedia pjnath pjlib-util
+    pjlib
+)
+set(PJSIP_THIRD_PARTY_LIBS
+    g7221 gsm ilbc resample speex srtp webrtc yuv
+)
+target_link_libraries(appsip-client
+    PRIVATE  ${PJSIP_LIBS}
+            ${PJSIP_THIRD_PARTY_LIBS}
+)
+
+
+
+
 include(GNUInstallDirs)
 install(TARGETS appsip-client
     BUNDLE DESTINATION .
