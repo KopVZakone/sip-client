@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 Item {
+    // Элемент списка
     Component {
         id: contactDelegate
         ItemDelegate {
@@ -10,11 +11,12 @@ Item {
 
             contentItem: RowLayout {
                 spacing: 15
+                // Информация
                 ColumnLayout {
                     Layout.fillWidth: true
-                    Layout.preferredWidth: 0
                     spacing: 0
 
+                    // Имя
                     Label {
                         text: model.name
                         font.bold: true
@@ -22,11 +24,13 @@ Item {
                         Layout.fillWidth: true
                         elide: Text.ElideRight
                     }
+                    // Номер
                     Label {
                         text: model.number
                         color: "#666666"
                         font.pixelSize: 13
                     }
+                    // Доп. информация
                     Label {
                         text: model.info
                         color: "#999999"
@@ -37,7 +41,7 @@ Item {
                         maximumLineCount: 1
                     }
                 }
-
+                // Кнопка вызова
                 ToolButton {
                     text: "📞"
                     font.pixelSize: 20
