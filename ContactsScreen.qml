@@ -14,6 +14,7 @@ Item {
                 // Информация
                 ColumnLayout {
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 0
                     spacing: 0
 
                     // Имя
