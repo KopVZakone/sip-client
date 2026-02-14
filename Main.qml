@@ -2,34 +2,29 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-Window {
+ApplicationWindow {
     id: root
     width: 600
     height: 800
     visible: true
     title: "SIP Client"
-    ColumnLayout {
-        anchors.fill: parent
-        spacing: 0
+    header: TabBar {
+        id: bar
+        width: parent.width
+        Repeater {
+            model: ["Вызов", "Контакты","История", "Аккаунты", "Настройки"]
 
-        TabBar {
-            id: bar
-            width: parent.width
-            Repeater {
-                model: ["Вызов", "Контакты","История", "Аккаунты", "Настройки"]
-
-                TabButton {
-                    text: modelData
-                }
+            TabButton {
+                text: modelData
             }
         }
-
-        StackLayout {
-            id: stackView
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            currentIndex: bar.currentIndex
-            CallScreen {}
-        }
+    }
+    StackLayout {
+        id: stackView
+        currentIndex: bar.currentIndex
+        anchors.fill: parent
+        CallScreen {}
+        ContactsScreen {}
+        HistoryScreen {}
     }
 }
