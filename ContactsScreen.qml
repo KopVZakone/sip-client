@@ -55,6 +55,12 @@ Item {
                     }
                 }
             }
+            Rectangle {
+                anchors.bottom: parent.bottom
+                width: parent.width
+                height: 1
+                color: "#F0F0F0"
+            }
         }
 
     }
