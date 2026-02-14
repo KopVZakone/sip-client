@@ -7,6 +7,14 @@ Item {
     property string callState: "idle"
     property int callDurationSeconds: 100
     property string remoteNumber: "79991234567"
+
+    // Функция форматирования времени (00:00)
+    function formatTime(s) {
+        let m = Math.floor(s / 60);
+        let sec = s % 60;
+        return (m < 10 ? "0" : "") + m + ":" + (sec < 10 ? "0" : "") + sec;
+    }
+
     ColumnLayout {
         anchors.fill: parent
         spacing: 20
@@ -40,9 +48,10 @@ Item {
             }
 
             Label {
-                text: formatTime(root.duration)
+                text: formatTime(root.callDurationSeconds)
                 visible: root.callState === "active"
-                font.family: "Monospace"; font.pixelSize: 20
+                font.family: "Monospace"
+                font.pixelSize: 20
                 Layout.alignment: Qt.AlignHCenter
             }
         }
