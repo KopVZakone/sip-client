@@ -6,79 +6,126 @@ Item {
     id: root
     property string callState: "idle"
     property int callDurationSeconds: 100
+    property string remoteNumber: "79991234567"
     ColumnLayout {
         anchors.fill: parent
-        spacing: 10
+        spacing: 20
 
         // Поле ввода номера
         TextField {
             id: numberInput
             placeholderText: "Введите номер..."
-            enabled: root.callState === "idle"
-            Layout.fillWidth: true
-        }
-
-        // Исходящий вызов
-        RowLayout {
-            spacing: 10
             visible: root.callState === "idle"
-            Button { text: "Вызов"; onClicked: root.callState = "active" }
+            Layout.fillWidth: true
+            horizontalAlignment: Text.AlignHCenter
+            font.pixelSize: 18
         }
-
-        // Активный вызов
+        // Информация о звонке
         ColumnLayout {
-            visible: root.callState === "active"
+            Layout.alignment: Qt.AlignCenter
             spacing: 10
-            RowLayout {
-                spacing: 10
-                Button { text: "Пауза" }
-                Button {
-                    text: "Сброс"
-                    onClicked: {
-                        root.callState = "idle"
-                        callTimer.stop()
-                        root.callDuration = 0
-                    }
+
+            Label {
+                text: root.callState === "idle" ? "Готов к вызову" :
+                      root.callState === "incoming" ? "Входящий звонок" : "Разговор"
+                color: "gray"
+                Layout.alignment: Qt.AlignHCenter
+            }
+
+            Label {
+                text: root.callState === "idle" ? "": root.remoteNumber
+                visible: text !== ""
+                font.bold: true; font.pixelSize: 32
+                Layout.alignment: Qt.AlignHCenter
+            }
+
+            Label {
+                text: formatTime(root.duration)
+                visible: root.callState === "active"
+                font.family: "Monospace"; font.pixelSize: 20
+                Layout.alignment: Qt.AlignHCenter
+            }
+        }
+        // Кнопки управления
+        RowLayout {
+            Layout.alignment: Qt.AlignCenter
+            spacing: 20
+            // Исходящий вызов
+            Button {
+                text: "Вызов"
+                visible: root.callState === "idle"
+                onClicked: root.callState = "active"
+                highlighted: true
+            }
+            // Активный вызов
+            Button {
+                text: "Пауза"
+                visible: root.callState === "active"
+                checkable: true
+            }
+            Button {
+                text: "Сброс"
+                visible: root.callState === "active"
+                palette.button: "#e74c3c";
+                onClicked: {
+                    root.callState = "idle"
                 }
             }
-            Label {
-                text: "Длительность звонка: " +
-                      Math.floor(root.callDurationSeconds / 60) + ":" +
-                      (root.callDurationSeconds % 60 < 10 ? "0" : "") +
-                      (root.callDurationSeconds % 60)
-                font.bold: true
+            // Входящий вызов
+            Button {
+                text: "Принять"
+                visible: root.callState === "incoming"
+                onClicked: root.callState = "active"
+            }
+            Button {
+                text: "Отклонить"
+                visible: root.callState === "incoming"
+                onClicked: root.callState = "idle"
             }
         }
-
-        // Входящий вызов
-        ColumnLayout {
-            visible: root.callState === "incoming"
-            spacing: 10
-            Label { text: "Входящий звонок: " + "79991234567" }
-            RowLayout {
-                spacing: 10
-                Button { text: "Принять"; onClicked: root.callState = "active" }
-                Button { text: "Отклонить"; onClicked: root.callState = "idle" }
-            }
-        }
-
         // Громкость и mute
         GroupBox {
             title: "Аудио"
             Layout.fillWidth: true
-            ColumnLayout {
-                spacing: 10
+            RowLayout {
+                anchors.fill: parent
 
-                RowLayout {
-                    Label { text: "Микрофон" }
-                    Slider { from: 0; to: 100; value: 50 }
-                    Button { text: "Mute" }
+                ColumnLayout {
+                    Label {
+                        text: "Микрофон"
+                        font.pixelSize: 10
+                    }
+                    Slider {
+                        id: micSlider
+                        from: 0
+                        to: 100
+                        value: 70
+                        Layout.fillWidth: true
+                    }
+                }
+                ToolButton {
+                    text: "🎤"
+                    checkable: true
                 }
 
-                RowLayout {
-                    Label { text: "Динамики" }
-                    Slider { from: 0; to: 100; value: 50 }
-                    Button { text: "Mute" }
+                Item { Layout.preferredWidth: 20 }
+
+                ColumnLayout {
+                    Label {
+                        text: "Динамик"
+                        font.pixelSize: 10
+                    }
+                    Slider {
+                        id: spkSlider
+                        from: 0
+                        to: 100
+                        value: 50
+                        Layout.fillWidth: true
+                    }
+                }
+                ToolButton {
+                    text: "🔊"
+                    checkable: true
                 }
             }
         }
@@ -86,6 +133,8 @@ Item {
     // Debug панель
     GroupBox {
         title: "Debug"
+        anchors.top: parent.top
+        anchors.right: parent.right
         RowLayout {
             spacing: 10
             Label {
