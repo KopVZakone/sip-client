@@ -21,6 +21,7 @@ qt_add_qml_module(appsip-client
         QML_FILES ContactsScreen.qml
         QML_FILES HistoryScreen.qml
         QML_FILES AccountsScreen.qml
+        QML_FILES SettingsScreen.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

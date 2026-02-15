@@ -27,5 +27,6 @@ ApplicationWindow {
         ContactsScreen {}
         HistoryScreen {}
         AccountsScreen {}
+        SettingsScreen {}
     }
 }
