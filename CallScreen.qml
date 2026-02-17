@@ -1,19 +1,13 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-
+import "Utils.js" as Utils
 Item {
     id: root
     property string callState: "idle"
     property int callDurationSeconds: 100
     property string remoteNumber: "79991234567"
 
-    // Функция форматирования времени (00:00)
-    function formatTime(s) {
-        let m = Math.floor(s / 60);
-        let sec = s % 60;
-        return (m < 10 ? "0" : "") + m + ":" + (sec < 10 ? "0" : "") + sec;
-    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -48,7 +42,7 @@ Item {
             }
 
             Label {
-                text: formatTime(root.callDurationSeconds)
+                text: Utils.formatTime(root.callDurationSeconds)
                 visible: root.callState === "active"
                 font.family: "Monospace"
                 font.pixelSize: 20

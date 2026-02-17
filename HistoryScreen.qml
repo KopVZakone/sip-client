@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import "Utils.js" as Utils
 Item {
     // Элемент списка
     Component {
@@ -49,7 +50,7 @@ Item {
                 Label {
                     Layout.preferredWidth: 60
                     Layout.alignment: Qt.AlignRight
-                    text: model.duration
+                    text: Utils.formatTime(model.durationSeconds)
                     font.family: "Monospace"
                     horizontalAlignment: Text.AlignRight
                 }
@@ -83,7 +84,7 @@ Item {
                 from_number:    "84950000000"
                 to_number:      "81230453000"
                 date:           "12.05 14:20"
-                duration:       "05:12"
+                durationSeconds:312
                 status:         "incoming"
             }
 
@@ -91,7 +92,7 @@ Item {
                 from_number:    "84000"
                 to_number:      "12400"
                 date:           "12.05 15:45"
-                duration:       "00:00"
+                durationSeconds:0
                 status:         "missed"
             }
 
@@ -99,7 +100,7 @@ Item {
                 from_number:    "1249504532132312300"
                 to_number:      "12495045300231231231"
                 date:           "04.04 10:05"
-                duration:       "12:30"
+                durationSeconds:750
                 status:         "outgoing"
             }
         }
