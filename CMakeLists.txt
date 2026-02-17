@@ -4,7 +4,7 @@ project(sip-client VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 6.4 REQUIRED COMPONENTS Quick)
+find_package(Qt6 6.4 REQUIRED COMPONENTS Quick Sql)
 
 qt_standard_project_setup()
 
@@ -13,7 +13,7 @@ qt_add_executable(appsip-client
 )
 
 qt_add_qml_module(appsip-client
-    URI sip-client
+    URI SipClient
     VERSION 0.1
     QML_FILES
         Main.qml
@@ -22,6 +22,11 @@ qt_add_qml_module(appsip-client
         QML_FILES HistoryScreen.qml
         QML_FILES AccountsScreen.qml
         QML_FILES SettingsScreen.qml
+        SOURCES Core/databasemanager.h Core/databasemanager.cpp
+)
+target_include_directories(appsip-client
+    PRIVATE
+    ${CMAKE_SOURCE_DIR}/Core
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
@@ -36,7 +41,7 @@ set_target_properties(appsip-client PROPERTIES
 )
 
 target_link_libraries(appsip-client
-    PRIVATE Qt6::Quick
+    PRIVATE Qt6::Quick Qt6::Sql
 )
 
 # Компиляция и подключение библиотек

@@ -1,12 +1,15 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-
+#include <QStandardPaths>
+#include <QDir>
+#include "Core/databasemanager.h"
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
-
+    QString path = "sip_client.db";
+    DatabaseManager manager {path};
     QQmlApplicationEngine engine;
-    const QUrl url(QStringLiteral("qrc:/sip-client/Main.qml"));
+    const QUrl url(QStringLiteral("qrc:/SipClient/Main.qml"));
     QObject::connect(
         &engine,
         &QQmlApplicationEngine::objectCreationFailed,
