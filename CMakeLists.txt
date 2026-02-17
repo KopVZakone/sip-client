@@ -23,6 +23,7 @@ qt_add_qml_module(appsip-client
         QML_FILES AccountsScreen.qml
         QML_FILES SettingsScreen.qml
         SOURCES Core/databasemanager.h Core/databasemanager.cpp
+        QML_FILES Utils.js
 )
 target_include_directories(appsip-client
     PRIVATE
