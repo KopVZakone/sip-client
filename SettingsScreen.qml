@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
-
+import SipClient
 ScrollView {
     id: settingsScroll
     Layout.fillWidth: true
@@ -58,7 +58,9 @@ ScrollView {
         SettingsItem {
             text: "Микрофон"
             ComboBox {
-                model: ["По умолчанию", "Realtek Audio", "Microphone 2"]
+                model: settingsManager.inputDevices
+                currentIndex: model.indexOf(settingsManager.getVal("input_name", ""))
+                onActivated: settingsManager.setInputDeviceByName(currentText)
             }
         }
         MenuSeparator { Layout.fillWidth: true }

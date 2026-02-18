@@ -24,12 +24,14 @@ qt_add_qml_module(appsip-client
         QML_FILES SettingsScreen.qml
         SOURCES Core/databasemanager.h Core/databasemanager.cpp
         QML_FILES Utils.js
+        SOURCES Models/settingsmanager.h Models/settingsmanager.cpp
         SOURCES Core/audiomanager.h Core/audiomanager.cpp
         SOURCES Core/sipmanager.h Core/sipmanager.cpp
 )
 target_include_directories(appsip-client
     PRIVATE
     ${CMAKE_SOURCE_DIR}/Core
+    ${CMAKE_SOURCE_DIR}/Models
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
