@@ -12,6 +12,7 @@ public:
 signals:
 private:
     void createTables();
+    void seedTables();
     QSqlDatabase m_db;
 };
 
