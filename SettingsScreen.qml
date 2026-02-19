@@ -67,7 +67,9 @@ ScrollView {
         SettingsItem {
             text: "Динамики"
             ComboBox {
-                model: ["По умолчанию", "Realtek Audio", "Headset 2"]
+                model: settingsManager.outputDevices
+                currentIndex: model.indexOf(settingsManager.getVal("output_name", ""))
+                onActivated: settingsManager.setOutputDeviceByName(currentText)
             }
         }
         // WIP: другие настройки в зависимости от настроек библиотеки
