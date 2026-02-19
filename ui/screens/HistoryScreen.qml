@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import "Utils.js" as Utils
+import "../utils/Utils.js" as Utils
 Item {
     // Элемент списка
     Component {

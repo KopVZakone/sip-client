@@ -16,22 +16,23 @@ qt_add_qml_module(appsip-client
     URI SipClient
     VERSION 0.1
     QML_FILES
-        Main.qml
-        QML_FILES CallScreen.qml
-        QML_FILES ContactsScreen.qml
-        QML_FILES HistoryScreen.qml
-        QML_FILES AccountsScreen.qml
-        QML_FILES SettingsScreen.qml
-        SOURCES Core/databasemanager.h Core/databasemanager.cpp
-        QML_FILES Utils.js
-        SOURCES Models/settingsmanager.h Models/settingsmanager.cpp
-        SOURCES Core/audiomanager.h Core/audiomanager.cpp
-        SOURCES Core/sipmanager.h Core/sipmanager.cpp
+        ui/Main.qml
+        ui/screens/CallScreen.qml
+        ui/screens/ContactsScreen.qml
+        ui/screens/HistoryScreen.qml
+        ui/screens/AccountsScreen.qml
+        ui/screens/SettingsScreen.qml
+        ui/utils/Utils.js
+        SOURCES core/databasemanager.h core/databasemanager.cpp
+        SOURCES models/settingsmanager.h models/settingsmanager.cpp
+        SOURCES core/audiomanager.h core/audiomanager.cpp
+        SOURCES core/sipmanager.h core/sipmanager.cpp
 )
 target_include_directories(appsip-client
     PRIVATE
-    ${CMAKE_SOURCE_DIR}/Core
-    ${CMAKE_SOURCE_DIR}/Models
+    ${CMAKE_SOURCE_DIR}/core
+    ${CMAKE_SOURCE_DIR}/models
+
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

@@ -7,7 +7,7 @@ Item {
         id: contactDelegate
         ItemDelegate {
             id: root
-            width: parent.width
+            width: parent.width // Заменить т.к. parent в ItemDelegate не рекомендуется использовать
 
             contentItem: RowLayout {
                 spacing: 15

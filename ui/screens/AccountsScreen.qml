@@ -74,8 +74,7 @@ Item {
                     }
                     // Переключатель для регистрации
                     Switch {
-                        id: regSwitch
-                        checked: model.registrationEnabled
+                        id: regSwitchs
                         Layout.alignment: Qt.AlignVCenter
 
                         onToggled: {
