@@ -49,6 +49,52 @@ void AudioManager::refreshDeviceLists()
             m_outputs << QString::fromUtf8(info.name.c_str());
     }
 }
+
+void AudioManager::setInputMuted(bool muted)
+{
+    m_input_muted = muted;
+    applyInputVolume(muted ? 0 : m_input_volume);
+}
+
+void AudioManager::setOutputMuted(bool muted)
+{
+    m_output_muted = muted;
+    applyOutputVolume(muted ? 0 : m_output_volume);
+}
+
+void AudioManager::setInputVolume(unsigned level)
+{
+    m_input_volume = level;
+    if (!m_input_muted) {
+        applyInputVolume(level);
+    }
+}
+
+void AudioManager::setOutputVolume(unsigned level)
+{
+    m_output_volume = level;
+    if (!m_output_muted) {
+        applyOutputVolume(level);
+    }
+}
 AudioManager::AudioManager() {
     refreshDeviceLists();
+}
+
+void AudioManager::applyInputVolume(unsigned int level)
+{
+    try {
+        pj::Endpoint::instance().audDevManager().setInputVolume(level);
+    } catch (pj::Error &err) {
+        qCritical() << "Ошибка регулировки микрофона:" << QString::fromStdString(err.info());
+    }
+}
+
+void AudioManager::applyOutputVolume(unsigned int level)
+{
+    try {
+        pj::Endpoint::instance().audDevManager().setOutputVolume(level);
+    } catch (pj::Error &err) {
+        qCritical() << "Ошибка регулировки динамиков:" << QString::fromStdString(err.info());
+    }
 }
