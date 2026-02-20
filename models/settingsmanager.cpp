@@ -24,13 +24,13 @@ QStringList SettingsManager::outputDevices() const
 void SettingsManager::setInputDeviceByName(QString deviceName)
 {
     AudioManager::instance().setDeviceByName(deviceName, true);
-    setVal("input_name", deviceName);
+    setVal(KeyInputDevice, deviceName);
 }
 
 void SettingsManager::setOutputDeviceByName(QString deviceName)
 {
     AudioManager::instance().setDeviceByName(deviceName, false);
-    setVal("output_name", deviceName);
+    setVal(KeyOutputDevice, deviceName);
 }
 
 void SettingsManager::refreshDeviceLists()
@@ -55,4 +55,51 @@ QVariant SettingsManager::getVal(QString key, QVariant defaultValue) const
     if (q.exec() && q.next())
         return q.value(0);
     return defaultValue;
+}
+
+int SettingsManager::inputVolume() const
+{
+    return getVal(KeyInputVolume, 100).toInt();
+}
+
+int SettingsManager::outputVolume() const
+{
+    return getVal(KeyOutputVolume, 100).toInt();
+}
+
+bool SettingsManager::inputMuted() const
+{
+    return getVal(KeyInputMuted, false).toBool();
+}
+
+bool SettingsManager::outputMuted() const
+{
+    return getVal(KeyOutputMuted, false).toBool();
+}
+
+void SettingsManager::setInputVolume(int level)
+{
+    AudioManager::instance().setInputVolume(level);
+    setVal(KeyInputVolume, level);
+    emit inputVolumeChanged();
+}
+
+void SettingsManager::setOutputVolume(int level)
+{
+    AudioManager::instance().setOutputVolume(level);
+    setVal(KeyOutputVolume, level);
+    emit outputVolumeChanged();
+}
+void SettingsManager::setInputMuted(bool muted)
+{
+    AudioManager::instance().setInputMuted(muted);
+    setVal(KeyInputMuted, muted);
+    emit inputMutedChanged();
+}
+
+void SettingsManager::setOutputMuted(bool muted)
+{
+    AudioManager::instance().setOutputMuted(muted);
+    setVal(KeyOutputMuted, muted);
+    emit outputMutedChanged();
 }
