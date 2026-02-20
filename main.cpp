@@ -15,6 +15,8 @@ int main(int argc, char *argv[])
     QString path = "sip_client.db";
     DatabaseManager dbManager {path};
     QQmlApplicationEngine engine;
+
+    engine.rootContext()->setContextProperty("settingsManager", &SettingsManager::instance());
     const QUrl url(QStringLiteral("qrc:/SipClient/ui/Main.qml"));
     QObject::connect(
         &engine,
@@ -23,7 +25,7 @@ int main(int argc, char *argv[])
         []() { QCoreApplication::exit(-1); },
         Qt::QueuedConnection);
     engine.load(url);
-    engine.rootContext()->setContextProperty("settingsManager", &SettingsManager::instance());
+
 
     int appResult = app.exec();
 
