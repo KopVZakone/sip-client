@@ -51,6 +51,8 @@ Item {
                     Rectangle {
                         id: statusLed
                         width: 10; height: 10; radius: 5
+                        Layout.preferredWidth: 10
+                        Layout.preferredHeight: 10
                         Layout.alignment: Qt.AlignVCenter
 
                         color: {
@@ -82,7 +84,6 @@ Item {
                     }
                     // Имя аккаунта и номер или ошибка регистрации
                     ColumnLayout {
-                        Layout.fillWidth: true
                         spacing: 2
                         Label {
                             text: model.name; font.bold: true; font.pixelSize: 16
@@ -104,7 +105,7 @@ Item {
                         }
                     }
                     // Кнопка переключения активного аккаунта
-                    Button {
+                    Button {                       
                         text: "Выбрать"
                         visible: !delegateRoot.isActive
                         Layout.alignment: Qt.AlignVCenter
@@ -136,7 +137,6 @@ Item {
                         onClicked: accountsModel.remove(index)
                     }
                 }
-
                 // Дополнительная информация
                 ColumnLayout {
                     id: detailBox
