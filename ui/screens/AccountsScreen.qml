@@ -6,6 +6,29 @@ Item {
     id: root
     property int activeAccountId: 1
 
+    function openEditor(accData = null) {
+        if (accData) {
+            accountDialog.editingIndex = accData.index
+            accountDialog.title = "Редактировать аккаунт"
+            nameField.text = accData.name
+            numberField.text = accData.number
+            serverField.text = accData.server
+            portField.text = accData.port.toString()
+            protoField.currentIndex = protoField.model.indexOf(accData.proto);
+        } else {
+            accountDialog.editingIndex = -1
+            accountDialog.title = "Новый аккаунт"
+            nameField.clear()
+            numberField.clear()
+            serverField.text = "sip.test.com"
+            portField.text = "5060"
+            protoField.currentIndex = 0;
+
+        }
+        accountDialog.open()
+    }
+
+
     // Элемент списка
     Component {
         id: accountDelegate
@@ -18,7 +41,6 @@ Item {
 
             contentItem: ColumnLayout {
                 spacing: 0
-
                 // Всегда видимая часть
                 RowLayout {
                     Layout.fillWidth: true
@@ -85,6 +107,7 @@ Item {
                     Button {
                         text: "Выбрать"
                         visible: !delegateRoot.isActive
+                        Layout.alignment: Qt.AlignVCenter
                         onClicked: root.activeAccountId = model.accId
                     }
 
@@ -92,6 +115,25 @@ Item {
                         text: isActive ? "Активен" : ""
                         color: "#4caf50"; font.pixelSize: 12
                         visible: delegateRoot.isActive
+                        Layout.alignment: Qt.AlignVCenter
+                    }
+                    // Пустое место для alignment right
+                    Item {
+                        Layout.fillWidth: true
+                    }
+                    // Кнопка изменения аккаунта
+                    Button {
+                        text: "🔧"
+                        Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
+                        flat: true
+                        onClicked: root.openEditor(model)
+                    }
+                    // Кнопка удаления аккаунта
+                    Button {
+                        text: "x"
+                        Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
+                        flat: true
+                        onClicked: accountsModel.remove(index)
                     }
                 }
 
@@ -135,7 +177,44 @@ Item {
             }
         }
     }
+    Dialog {
+        id: accountDialog
+        anchors.centerIn: parent
+        width: parent.width * 0.8
+        modal: true
+        standardButtons: Dialog.Save | Dialog.Cancel
 
+        property int editingIndex: -1
+
+        ColumnLayout {
+            width: parent.width
+            TextField { id: nameField; placeholderText: "Название"; Layout.fillWidth: true }
+            TextField { id: numberField; placeholderText: "Номер/Логин"; Layout.fillWidth: true }
+            RowLayout {
+                TextField { id: serverField; placeholderText: "Сервер"; Layout.fillWidth: true }
+                TextField { id: portField; placeholderText: "Порт"; Layout.preferredWidth: 80; inputMethodHints: Qt.ImhDigitsOnly }
+                ComboBox { id: protoField; model: ["UDP", "TCP", "TLS"]; }
+            }
+        }
+
+        onAccepted: {
+            let data = {
+                "name": nameField.text,
+                "number": numberField.text,
+                "server": serverField.text,
+                "port": parseInt(portField.text),
+                "proto": protoField.currentText,
+                "regStatus": "offline",
+                "accId": editingIndex === -1 ? Date.now() : accountsModel.get(editingIndex).accId
+            }
+
+            if (editingIndex === -1) {
+                accountsModel.append(data)
+            } else {
+                accountsModel.set(editingIndex, data)
+            }
+        }
+    }    
     ListModel {
         id: accountsModel
         ListElement {
@@ -167,16 +246,25 @@ Item {
             lastError: "401"
         }
     }
-
-    ListView {
-        id: accountsList
+    ColumnLayout {
         anchors.fill: parent
-        model: accountsModel
-        spacing: 10
-        clip: true
+        anchors.margins: 10
+        Button {
+            text: "+ Добавить аккаунт"
+            Layout.fillWidth: true
+            onClicked: root.openEditor()
+        }
+        ListView {
+            id: accountsList
+            Layout.fillHeight: true;
+            Layout.fillWidth: true;
+            model: accountsModel
+            spacing: 10
+            clip: true
 
-        property int expandedAccountId: -1
+            property int expandedAccountId: -1
 
-        delegate: accountDelegate
+            delegate: accountDelegate
+        }
     }
 }
