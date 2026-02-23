@@ -3,8 +3,9 @@
 #include <QStandardPaths>
 #include <QQmlContext>
 #include <QDir>
-#include "core/databasemanager.h"
-#include "models/settingsmanager.h"
+#include "accountsmodel.h"
+#include "databasemanager.h"
+#include "settingsmanager.h"
 #include "sipmanager.h"
 int main(int argc, char *argv[])
 {
@@ -15,8 +16,11 @@ int main(int argc, char *argv[])
     QString path = "sip_client.db";
     DatabaseManager dbManager {path};
     QQmlApplicationEngine engine;
+    AccountsModel *accountsModel = new AccountsModel(&app);
 
     engine.rootContext()->setContextProperty("settingsManager", &SettingsManager::instance());
+
+    engine.rootContext()->setContextProperty("accountsModel", accountsModel);
     const QUrl url(QStringLiteral("qrc:/SipClient/ui/Main.qml"));
     QObject::connect(
         &engine,

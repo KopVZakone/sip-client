@@ -8,21 +8,23 @@ Item {
 
     function openEditor(accData = null) {
         if (accData) {
-            accountDialog.editingIndex = accData.index
+            accountDialog.editingIndex = accData.id
             accountDialog.title = "Редактировать аккаунт"
-            nameField.text = accData.name
-            numberField.text = accData.number
-            serverField.text = accData.server
+            displayNameField.text = accData.displayName
+            usernameField.text = accData.username
+            passwordField.text = accData.password
+            domainField.text = accData.domain
             portField.text = accData.port.toString()
-            protoField.currentIndex = protoField.model.indexOf(accData.proto);
+            protocolField.currentIndex = protocolField.model.indexOf(accData.protocol);
         } else {
             accountDialog.editingIndex = -1
             accountDialog.title = "Новый аккаунт"
-            nameField.clear()
-            numberField.clear()
-            serverField.text = "sip.test.com"
+            displayNameField.clear()
+            usernameField.clear()
+            passwordField.clear()
+            domainField.text = "sip.test.com"
             portField.text = "5060"
-            protoField.currentIndex = 0;
+            protocolField.currentIndex = 0;
 
         }
         accountDialog.open()
@@ -36,8 +38,8 @@ Item {
             id: delegateRoot
             width: accountsList.width
 
-            readonly property bool isExpanded: model.accId === accountsList.expandedAccountId
-            readonly property bool isActive: model.accId === root.activeAccountId
+            readonly property bool isExpanded: model.id === accountsList.expandedAccountId
+            readonly property bool isActive: model.id === root.activeAccountId
 
             contentItem: ColumnLayout {
                 spacing: 0
@@ -86,11 +88,11 @@ Item {
                     ColumnLayout {
                         spacing: 2
                         Label {
-                            text: model.name; font.bold: true; font.pixelSize: 16
+                            text: model.displayName; font.bold: true; font.pixelSize: 16
                             color: delegateRoot.isActive ? "#2196F3" : "black"
                         }
                         Label {
-                            text: model.regStatus === "error" ? "Ошибка: " + model.lastError : model.number
+                            text: model.regStatus === "error" ? "Ошибка: " + model.lastError : model.username
                             font.pixelSize: 11
                             color: model.regStatus === "error" ? "#F44336" : "#757575"
                         }
@@ -109,7 +111,7 @@ Item {
                         text: "Выбрать"
                         visible: !delegateRoot.isActive
                         Layout.alignment: Qt.AlignVCenter
-                        onClicked: root.activeAccountId = model.accId
+                        onClicked: root.activeAccountId = model.id
                     }
 
                     Label {
@@ -134,7 +136,7 @@ Item {
                         text: "x"
                         Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
                         flat: true
-                        onClicked: accountsModel.remove(index)
+                        onClicked: accountsModel.removeAccount(model.id)
                     }
                 }
                 // Дополнительная информация
@@ -152,13 +154,13 @@ Item {
                         Layout.margins: 10
 
                         Label { text: "Сервер:"; color: "gray" }
-                        Label { text: model.server; font.family: "Monospace" }
+                        Label { text: model.domain; font.family: "Monospace" }
 
                         Label { text: "Порт:"; color: "gray" }
                         Label { text: model.port }
 
                         Label { text: "Протокол:"; color: "gray" }
-                        Label { text: model.proto; font.bold: true }
+                        Label { text: model.protocol; font.bold: true }
                     }
                 }
             }
@@ -167,7 +169,7 @@ Item {
                 if (isExpanded)
                     accountsList.expandedAccountId = -1
                 else
-                    accountsList.expandedAccountId = model.accId
+                    accountsList.expandedAccountId = model.id
             }
 
             background: Rectangle {
@@ -183,69 +185,61 @@ Item {
         width: parent.width * 0.8
         modal: true
         standardButtons: Dialog.Save | Dialog.Cancel
-
         property int editingIndex: -1
 
         ColumnLayout {
             width: parent.width
-            TextField { id: nameField; placeholderText: "Название"; Layout.fillWidth: true }
-            TextField { id: numberField; placeholderText: "Номер/Логин"; Layout.fillWidth: true }
+            TextField { id: displayNameField; placeholderText: "Название"; Layout.fillWidth: true }
+            TextField { id: usernameField; placeholderText: "Номер/Логин"; Layout.fillWidth: true }
+            TextField { id: passwordField; echoMode: TextInput.PasswordEchoOnEdit; placeholderText: "Пароль"; Layout.fillWidth: true }
             RowLayout {
-                TextField { id: serverField; placeholderText: "Сервер"; Layout.fillWidth: true }
+                TextField { id: domainField; placeholderText: "Сервер"; Layout.fillWidth: true }
                 TextField { id: portField; placeholderText: "Порт"; Layout.preferredWidth: 80; inputMethodHints: Qt.ImhDigitsOnly }
-                ComboBox { id: protoField; model: ["UDP", "TCP", "TLS"]; }
+                ComboBox { id: protocolField; model: ["UDP", "TCP", "TLS"]; }
             }
         }
 
         onAccepted: {
-            let data = {
-                "name": nameField.text,
-                "number": numberField.text,
-                "server": serverField.text,
-                "port": parseInt(portField.text),
-                "proto": protoField.currentText,
-                "regStatus": "offline",
-                "accId": editingIndex === -1 ? Date.now() : accountsModel.get(editingIndex).accId
-            }
-
-            if (editingIndex === -1) {
-                accountsModel.append(data)
-            } else {
-                accountsModel.set(editingIndex, data)
-            }
+            accountsModel.saveAccount(editingIndex,
+                                      displayNameField.text,
+                                      usernameField.text,
+                                      passwordField.text,
+                                      domainField.text,
+                                      parseInt(portField.text),
+                                      protocolField.currentText)
         }
     }    
-    ListModel {
-        id: accountsModel
-        ListElement {
-            accId: 1
-            name: "Рабочий"
-            number: "10112312"
-            server: "sip.company.com"
-            port: 5060
-            proto: "UDP"
-            regStatus: "registered"
-        }
-        ListElement {
-            accId: 2
-            name: "Домашний"
-            number: "74951234567"
-            server: "sip.provider.net"
-            port: 5061
-            proto: "TLS"
-            regStatus: "registering"
-        }
-        ListElement {
-            accId: 3
-            name: "Test"
-            number: "test"
-            server: "192.168.1.50"
-            port: 5060
-            proto: "TCP"
-            regStatus: "error"
-            lastError: "401"
-        }
-    }
+    // ListModel {
+    //     id: accountsModel
+    //     ListElement {
+    //         accId: 1
+    //         name: "Рабочий"
+    //         number: "10112312"
+    //         server: "sip.company.com"
+    //         port: 5060
+    //         proto: "UDP"
+    //         regStatus: "registered"
+    //     }
+    //     ListElement {
+    //         accId: 2
+    //         name: "Домашний"
+    //         number: "74951234567"
+    //         server: "sip.provider.net"
+    //         port: 5061
+    //         proto: "TLS"
+    //         regStatus: "registering"
+    //     }
+    //     ListElement {
+    //         accId: 3
+    //         name: "Test"
+    //         number: "test"
+    //         server: "192.168.1.50"
+    //         port: 5060
+    //         proto: "TCP"
+    //         regStatus: "error"
+    //         lastError: "401"
+    //     }
+    // }
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 10
