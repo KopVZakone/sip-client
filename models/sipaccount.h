@@ -9,10 +9,10 @@ class SipAccount : public QObject, public pj::Account
 public:
     SipAccount(int id);
     virtual void onRegState(pj::OnRegStateParam &prm) override;
-  signals:
+signals:
     void registrationStatusChanged(int id, QString status, QString error);
 
-  private:
+private:
     int m_id;
 };
 

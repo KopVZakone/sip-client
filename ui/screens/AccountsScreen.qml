@@ -4,7 +4,6 @@ import QtQuick.Controls
 
 Item {
     id: root
-    property int activeAccountId: 1
 
     function openEditor(accData = null) {
         if (accData) {
@@ -39,7 +38,7 @@ Item {
             width: accountsList.width
 
             readonly property bool isExpanded: model.id === accountsList.expandedAccountId
-            readonly property bool isActive: model.id === root.activeAccountId
+            readonly property bool isActive: model.id === accountsManager.selectedAccountIndex
 
             contentItem: ColumnLayout {
                 spacing: 0
@@ -101,9 +100,13 @@ Item {
                     Switch {
                         id: regSwitchs
                         Layout.alignment: Qt.AlignVCenter
-
+                        checked: !(model.regStatus === "offline" || model.regStatus === "error")
                         onToggled: {
-                            // TODO: регистрация
+                            if (checked){
+                                accountsManager.registerAccount(model.id);
+                            } else {
+                                accountsManager.unregisterAccount(model.id);
+                            }
                         }
                     }
                     // Кнопка переключения активного аккаунта
@@ -111,7 +114,7 @@ Item {
                         text: "Выбрать"
                         visible: !delegateRoot.isActive
                         Layout.alignment: Qt.AlignVCenter
-                        onClicked: root.activeAccountId = model.id
+                        onClicked: accountsManager.selectedAccountIndex = model.id
                     }
 
                     Label {

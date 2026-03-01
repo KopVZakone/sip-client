@@ -20,6 +20,7 @@ int main(int argc, char *argv[])
     auto& accountsManager = AccountsManager::instance();
     auto& audioManager = AudioManager::instance();
     audioManager.applySettings();
+    accountsManager.applySettings();
     QQmlApplicationEngine engine;
     // Установка синглтонов для интерфейса
     engine.rootContext()->setContextProperty("accountsManager", &accountsManager);

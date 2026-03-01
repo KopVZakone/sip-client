@@ -1,4 +1,5 @@
 #include "accountsmanager.h"
+#include "settingsmanager.h"
 #include <pjsua2.hpp>
 #include <QDebug>
 AccountsManager::AccountsManager(QObject *parent)
@@ -11,6 +12,11 @@ AccountsManager &AccountsManager::instance()
 {
     static AccountsManager inst;
     return inst;
+}
+
+void AccountsManager::applySettings()
+{
+    selectAccount(SettingsManager::instance().getValue(SettingsManager::KeySelectedAccount, -1));
 }
 
 void AccountsManager::saveAccount(int id, const QString &displayName, const QString &username, const QString &password, const QString &domain, int port, const QString &protocol)
@@ -47,8 +53,10 @@ void AccountsManager::registerAccount(int id) {
 
     try
     {
-        m_account = std::make_unique<pj::Account>();
+        m_account = std::make_unique<SipAccount>(id);
+        connect(m_account.get(), &SipAccount::registrationStatusChanged, this, &AccountsManager::updateStatus);
         m_account->create(acc_cfg);
+        updateStatus(id, "registering");
     }
     catch(pj::Error& err)
     {
@@ -63,6 +71,18 @@ void AccountsManager::unregisterAccount(int id)
     {
         m_account.reset();
     }
+}
+
+int AccountsManager::selectedAccountIndex() const
+{
+    return m_selectedIndex;
+}
+
+void AccountsManager::selectAccount(int id)
+{
+    m_selectedIndex = id;
+    SettingsManager::instance().setVal(SettingsManager::KeySelectedAccount, id);
+    emit selectedAccountChanged();
 }
 
 AccountsManager::~AccountsManager()
