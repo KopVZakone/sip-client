@@ -62,12 +62,6 @@ void DatabaseManager::createTables() {
 void DatabaseManager::seedTables()
 {
     QSqlQuery q;
-    // Аккаунты
-    q.exec("DELETE FROM accounts");
-    q.exec("INSERT INTO accounts (display_name, username, password, domain, port, protocol) VALUES "
-           "('Рабочий', '10112312', 'password', 'sip.company.com', 5060, 'UDP'), "
-           "('Домашний', '74951234567', 'password', 'sip.provider.net', 5061, 'TLS'), "
-           "('Test', 'test', 'password', '192.168.1.50', 5060, 'TCP')");
 
     // Контакты
     q.exec("DELETE FROM contacts");

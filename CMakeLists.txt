@@ -27,7 +27,9 @@ qt_add_qml_module(appsip-client
         SOURCES models/settingsmanager.h models/settingsmanager.cpp
         SOURCES core/audiomanager.h core/audiomanager.cpp
         SOURCES core/sipmanager.h core/sipmanager.cpp
+        SOURCES core/accountsmanager.h core/accountsmanager.cpp
         SOURCES models/accountsmodel.h models/accountsmodel.cpp
+        SOURCES models/sipaccount.h models/sipaccount.cpp
 )
 target_include_directories(appsip-client
     PRIVATE

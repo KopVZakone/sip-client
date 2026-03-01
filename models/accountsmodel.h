@@ -17,30 +17,21 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const;
 
+    // Получение записи по первичному индексу
+    QVariantMap getDataById(int id) const;
     // Названия полей для js объекта
     QHash<int, QByteArray> roleNames() const;
 
+    QVariantMap getAccountById(int id) const;
     /**
      * @brief Обновление или создание нового аккаунта если id == -1,
      * по умолчанию не регистрируется
-     * при успехе вызывает сигнал accountChanged
      */
-    Q_INVOKABLE void saveAccount(int id, const QString &displayName, const QString &username,const QString &password,
+    void saveAccount(int id, const QString &displayName, const QString &username,const QString &password,
                                  const QString &domain, int port, const QString &protocol);
-    /**
-     * @brief Удаление аккаунта из бд
-     *  при успехе вызывает сигнал accountRemoved
-     */
-    Q_INVOKABLE void removeAccount(int id);
+    void removeAccount(int id);
 
-public slots:
-    // Слот для обновления статуса регистрации в ui после регистрации
-    void updateStatus(int id, QString status, QString error = "");
-signals:
-    // Сигналы для перерегистрации и удаления аккаунта
-
-    void accountChanged(int id, QString username, QString password, QString domain, int port, QString protocol);
-    void accountRemoved(int id);
+    void updateStatus(int id, QString status, QString error);
 private:
     //статусы регистрации
     QHash<int, QString> m_regStatuses;

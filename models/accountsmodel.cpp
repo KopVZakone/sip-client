@@ -24,7 +24,6 @@ QVariant AccountsModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return {};
-
     const int row = index.row();
 
     int idColumn = fieldIndex("id");
@@ -63,6 +62,23 @@ QHash<int, QByteArray> AccountsModel::roleNames() const
     return roles;
 }
 
+QVariantMap AccountsModel::getAccountById(int id) const
+{
+    auto matches = match(index(0, fieldIndex("id")), Qt::DisplayRole, id, 1, Qt::MatchExactly);
+    if (!matches.isEmpty()) {
+        QModelIndex foundIndex = matches.first();
+        int row = foundIndex.row();
+        return {
+            {"username", data(index(row, 0), UsernameRole)},
+            {"password", data(index(row, 0), PasswordRole)},
+            {"domain",   data(index(row, 0), DomainRole)},
+            {"port",     data(index(row, 0), PortRole)},
+            {"protocol", data(index(row, 0), ProtocolRole)}
+        };
+    }
+    return {};
+}
+
 void AccountsModel::saveAccount(int id, const QString &displayName, const QString &username,const QString &password,
                                 const QString &domain, int port, const QString &protocol)
 {
@@ -94,8 +110,6 @@ void AccountsModel::saveAccount(int id, const QString &displayName, const QStrin
             qCritical() << "Ошибка вставки аккаунта в бд: " << query().lastError();
             return;
         }
-
-        id = query().lastInsertId().toInt();
     } else {
         // Изменение существующей
         if (!setRecord(row, rec)){
@@ -105,8 +119,6 @@ void AccountsModel::saveAccount(int id, const QString &displayName, const QStrin
     }
     //Ручное подтверждение операции
     submitAll();
-
-    emit accountChanged(id, username, password, domain, port, protocol);
 }
 
 void AccountsModel::removeAccount(int id)
@@ -126,8 +138,6 @@ void AccountsModel::removeAccount(int id)
 
         //Ручное подтверждение удаления
         submitAll();
-
-        emit accountRemoved(id);
     }
 }
 

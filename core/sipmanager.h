@@ -19,7 +19,7 @@ public:
 
     ~SipManager();
 private:
-    SipManager();
+    explicit SipManager();
     std::unique_ptr<pj::Endpoint> m_endpoint;
 
     SipManager(const SipManager&) = delete;

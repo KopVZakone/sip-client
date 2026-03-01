@@ -136,7 +136,7 @@ Item {
                         text: "x"
                         Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
                         flat: true
-                        onClicked: accountsModel.removeAccount(model.id)
+                        onClicked: accountsManager.removeAccount(model.id)
                     }
                 }
                 // Дополнительная информация
@@ -200,7 +200,7 @@ Item {
         }
 
         onAccepted: {
-            accountsModel.saveAccount(editingIndex,
+            accountsManager.saveAccount(editingIndex,
                                       displayNameField.text,
                                       usernameField.text,
                                       passwordField.text,
@@ -209,37 +209,6 @@ Item {
                                       protocolField.currentText)
         }
     }    
-    // ListModel {
-    //     id: accountsModel
-    //     ListElement {
-    //         accId: 1
-    //         name: "Рабочий"
-    //         number: "10112312"
-    //         server: "sip.company.com"
-    //         port: 5060
-    //         proto: "UDP"
-    //         regStatus: "registered"
-    //     }
-    //     ListElement {
-    //         accId: 2
-    //         name: "Домашний"
-    //         number: "74951234567"
-    //         server: "sip.provider.net"
-    //         port: 5061
-    //         proto: "TLS"
-    //         regStatus: "registering"
-    //     }
-    //     ListElement {
-    //         accId: 3
-    //         name: "Test"
-    //         number: "test"
-    //         server: "192.168.1.50"
-    //         port: 5060
-    //         proto: "TCP"
-    //         regStatus: "error"
-    //         lastError: "401"
-    //     }
-    // }
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 10
@@ -252,7 +221,7 @@ Item {
             id: accountsList
             Layout.fillHeight: true;
             Layout.fillWidth: true;
-            model: accountsModel
+            model: accountsManager.model
             spacing: 10
             clip: true
 
