@@ -4,9 +4,9 @@
 #include <QQmlContext>
 #include <QDir>
 #include "databasemanager.h"
-#include "settingsmanager.h"
 #include "sipmanager.h"
 #include "accountsmanager.h"
+#include "audiomanager.h"
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
@@ -18,13 +18,12 @@ int main(int argc, char *argv[])
     auto& sipManager = SipManager::instance();
     sipManager.start();
     auto& accountsManager = AccountsManager::instance();
-
-
+    auto& audioManager = AudioManager::instance();
+    audioManager.applySettings();
     QQmlApplicationEngine engine;
     // Установка синглтонов для интерфейса
-    engine.rootContext()->setContextProperty("settingsManager", &SettingsManager::instance());
     engine.rootContext()->setContextProperty("accountsManager", &accountsManager);
-
+    engine.rootContext()->setContextProperty("audioManager", &audioManager);
 
     const QUrl url(QStringLiteral("qrc:/SipClient/ui/Main.qml"));
     QObject::connect(

@@ -102,16 +102,16 @@ Item {
                         id: micSlider
                         from: 0
                         to: 100
-                        value: settingsManager.inputVolume
-                        onMoved: settingsManager.inputVolume = value
+                        value: audioManager.inputVolume
+                        onMoved: audioManager.inputVolume = value
                         Layout.fillWidth: true
                     }
                 }
                 ToolButton {
-                    text: settingsManager.inputMuted ? "🎤❌" : "🎤"
+                    text: audioManager.inputMuted ? "🎤❌" : "🎤"
                     checkable: true
-                    checked: settingsManager.inputMuted
-                    onClicked: settingsManager.inputMuted = checked
+                    checked: audioManager.inputMuted
+                    onClicked: audioManager.inputMuted = checked
                 }
 
                 Item { Layout.preferredWidth: 20 }
@@ -125,16 +125,16 @@ Item {
                         id: spkSlider
                         from: 0
                         to: 100
-                        value: settingsManager.outputVolume
-                        onMoved: settingsManager.outputVolume = value
+                        value: audioManager.outputVolume
+                        onMoved: audioManager.outputVolume = value
                         Layout.fillWidth: true
                     }
                 }
                 ToolButton {
-                    text: settingsManager.outputMuted ? "🔇" : "🔊"
+                    text: audioManager.outputMuted ? "🔇" : "🔊"
                     checkable: true
-                    checked: settingsManager.outputMuted
-                    onClicked: settingsManager.outputMuted = checked
+                    checked: audioManager.outputMuted
+                    onClicked: audioManager.outputMuted = checked
                 }
             }
         }

@@ -7,12 +7,23 @@
  * @brief Управляет устройствами ввода и вывода
  *  Singleton
  */
-class AudioManager
+class AudioManager : public QObject
 {
+    Q_OBJECT
+    Q_PROPERTY(QStringList inputDevices READ inputDevices NOTIFY devicesChanged)
+    Q_PROPERTY(QStringList outputDevices READ outputDevices NOTIFY devicesChanged)
+    Q_PROPERTY(QString outputDevice READ outputDevice WRITE setOutputDeviceByName NOTIFY devicesChanged)
+    Q_PROPERTY(QString inputDevice READ inputDevice WRITE setInputDeviceByName NOTIFY devicesChanged)
+    Q_PROPERTY(int inputVolume READ inputVolume WRITE setInputVolume NOTIFY inputVolumeChanged)
+    Q_PROPERTY(int outputVolume READ outputVolume WRITE setOutputVolume NOTIFY outputVolumeChanged)
+    Q_PROPERTY(bool inputMuted READ inputMuted WRITE setInputMuted NOTIFY inputMutedChanged)
+    Q_PROPERTY(bool outputMuted READ outputMuted WRITE setOutputMuted NOTIFY outputMutedChanged)
 public:
     static AudioManager& instance();
-    void setDeviceByName(const QString& name, bool isInput);
+    void applySettings();
 
+    Q_INVOKABLE void setInputDeviceByName(QString deviceName);
+    Q_INVOKABLE void setOutputDeviceByName(QString deviceName);
     /** @brief Возвращает закешированный список имен доступных устройств аудио ввода.
     */
     QStringList inputDevices() const;
@@ -46,6 +57,21 @@ public:
      * @param level процент громкости от максимального уровня от 0 до 100
      */
     void setOutputVolume(unsigned level);
+
+
+    int inputVolume() const;
+    int outputVolume() const;
+    bool inputMuted() const;
+    bool outputMuted() const;
+    QString outputDevice() const;
+    QString inputDevice() const;
+signals:
+    void devicesChanged();
+
+    void inputVolumeChanged();
+    void outputVolumeChanged();
+    void inputMutedChanged();
+    void outputMutedChanged();
 private:
     explicit AudioManager();
     QStringList m_inputs;
@@ -54,6 +80,8 @@ private:
     unsigned m_output_volume;
     bool m_input_muted;
     bool m_output_muted;
+
+    void setDeviceByName(const QString& name, bool isInput);
     void applyInputVolume(unsigned level);
     void applyOutputVolume(unsigned level);
     AudioManager(const AudioManager&) = delete;

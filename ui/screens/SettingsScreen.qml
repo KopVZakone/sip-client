@@ -58,18 +58,18 @@ ScrollView {
         SettingsItem {
             text: "Микрофон"
             ComboBox {
-                model: settingsManager.inputDevices
-                currentIndex: model.indexOf(settingsManager.getVal("input_name", ""))
-                onActivated: settingsManager.setInputDeviceByName(currentText)
+                model: audioManager.inputDevices
+                currentIndex: model.indexOf(audioManager.inputDevice)
+                onActivated: audioManager.inputDevice = currentText
             }
         }
         MenuSeparator { Layout.fillWidth: true }
         SettingsItem {
             text: "Динамики"
             ComboBox {
-                model: settingsManager.outputDevices
-                currentIndex: model.indexOf(settingsManager.getVal("output_name", ""))
-                onActivated: settingsManager.setOutputDeviceByName(currentText)
+                model: audioManager.outputDevices
+                currentIndex: model.indexOf(audioManager.outputDevice)
+                onActivated: audioManager.outputDevice = currentText
             }
         }
         // WIP: другие настройки в зависимости от настроек библиотеки
