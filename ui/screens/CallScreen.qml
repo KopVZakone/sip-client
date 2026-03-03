@@ -1,13 +1,13 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import SipClient
 import "../utils/Utils.js" as Utils
 Item {
     id: root
-    property string callState: "idle"
-    property int callDurationSeconds: 100
-    property string remoteNumber: "79991234567"
-
+    readonly property bool isOngoingCall: callManager.callState === CallManager.Active ||
+                                            callManager.callState === CallManager.Paused ||
+                                            callManager.callState === CallManager.Ended;
 
     ColumnLayout {
         anchors.fill: parent
@@ -17,7 +17,7 @@ Item {
         TextField {
             id: numberInput
             placeholderText: "Введите номер..."
-            visible: root.callState === "idle"
+            visible: callManager.callState === CallManager.Idle
             Layout.fillWidth: true
             horizontalAlignment: Text.AlignHCenter
             font.pixelSize: 18
@@ -28,22 +28,22 @@ Item {
             spacing: 10
 
             Label {
-                text: root.callState === "idle" ? "Готов к вызову" :
-                      root.callState === "incoming" ? "Входящий звонок" : "Разговор"
+                text: callManager.callState === CallManager.Idle ? "Готов к вызову" :
+                      callManager.callState === CallManager.Incoming ? "Входящий звонок" : "Разговор"
                 color: "gray"
                 Layout.alignment: Qt.AlignHCenter
             }
 
             Label {
-                text: root.callState === "idle" ? "": root.remoteNumber
+                text: callManager.callState === CallManager.Idle ? "": callManager.remoteCallerNumber
                 visible: text !== ""
                 font.bold: true; font.pixelSize: 32
                 Layout.alignment: Qt.AlignHCenter
             }
 
             Label {
-                text: Utils.formatTime(root.callDurationSeconds)
-                visible: root.callState === "active"
+                text: Utils.formatTime(callManager.callDuration)
+                visible: root.isOngoingCall
                 font.family: "Monospace"
                 font.pixelSize: 20
                 Layout.alignment: Qt.AlignHCenter
@@ -56,34 +56,32 @@ Item {
             // Исходящий вызов
             Button {
                 text: "Вызов"
-                visible: root.callState === "idle"
-                onClicked: root.callState = "active"
+                visible: callManager.callState === CallManager.Idle
+                onClicked: {}
                 highlighted: true
             }
             // Активный вызов
             Button {
                 text: "Пауза"
-                visible: root.callState === "active"
+                visible: root.isOngoingCall
                 checkable: true
             }
             Button {
                 text: "Сброс"
-                visible: root.callState === "active"
+                visible: root.isOngoingCall
                 palette.button: "#e74c3c";
-                onClicked: {
-                    root.callState = "idle"
-                }
+                onClicked: { }
             }
             // Входящий вызов
             Button {
                 text: "Принять"
-                visible: root.callState === "incoming"
-                onClicked: root.callState = "active"
+                visible: callManager.callState === CallManager.Incoming
+                onClicked: { }
             }
             Button {
                 text: "Отклонить"
-                visible: root.callState === "incoming"
-                onClicked: root.callState = "idle"
+                visible: callManager.callState === CallManager.Incoming
+                onClicked: { }
             }
         }
         // Громкость и mute
@@ -147,13 +145,7 @@ Item {
         RowLayout {
             spacing: 10
             Label {
-                text: root.callState
-            }
-            ComboBox {
-                id: debugState
-                model: ["idle", "active", "incoming"]
-                currentIndex: 0
-                onCurrentTextChanged: root.callState = currentText
+                text: callManager.callState
             }
         }
     }

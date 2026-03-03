@@ -1,8 +1,10 @@
 #include "sipaccount.h"
-
+#include "sipcall.h"
+#include "callmanager.h"
 
 SipAccount::SipAccount(int id) : m_id(id)
-{ }
+{
+}
 
 void SipAccount::onRegState(pj::OnRegStateParam &prm)
 {
@@ -23,4 +25,15 @@ void SipAccount::onRegState(pj::OnRegStateParam &prm)
     }
 
     emit registrationStatusChanged(m_id, statusText, errorText);
+}
+
+void SipAccount::onRegStarted(pj::OnRegStartedParam &prm)
+{
+    emit registrationStatusChanged(m_id, "registering");
+}
+
+void SipAccount::onIncomingCall(pj::OnIncomingCallParam &prm)
+{
+    auto currentCall = new SipCall(*this, prm.callId);
+    CallManager::instance().registerIncomingCall(currentCall);
 }

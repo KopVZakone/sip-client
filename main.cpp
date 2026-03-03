@@ -3,6 +3,7 @@
 #include <QStandardPaths>
 #include <QQmlContext>
 #include <QDir>
+#include <callmanager.h>
 #include "databasemanager.h"
 #include "sipmanager.h"
 #include "accountsmanager.h"
@@ -19,13 +20,14 @@ int main(int argc, char *argv[])
     sipManager.start();
     auto& accountsManager = AccountsManager::instance();
     auto& audioManager = AudioManager::instance();
+    auto& callManager = CallManager::instance();
     audioManager.applySettings();
     accountsManager.applySettings();
     QQmlApplicationEngine engine;
     // Установка синглтонов для интерфейса
     engine.rootContext()->setContextProperty("accountsManager", &accountsManager);
     engine.rootContext()->setContextProperty("audioManager", &audioManager);
-
+    engine.rootContext()->setContextProperty("callManager", &callManager);
     const QUrl url(QStringLiteral("qrc:/SipClient/ui/Main.qml"));
     QObject::connect(
         &engine,
