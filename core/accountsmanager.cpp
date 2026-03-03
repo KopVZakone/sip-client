@@ -91,7 +91,7 @@ AccountsManager::~AccountsManager()
     {
         unregisterAccount(m_account->getId());
     }
-
+    delete m_model;
 }
 
 void AccountsManager::updateStatus(int id, QString status, QString error)
