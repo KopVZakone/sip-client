@@ -37,3 +37,8 @@ void SipAccount::onIncomingCall(pj::OnIncomingCallParam &prm)
     auto currentCall = new SipCall(*this, prm.callId);
     CallManager::instance().registerIncomingCall(currentCall);
 }
+
+int SipAccount::getAccountId()
+{
+    return m_id;
+}

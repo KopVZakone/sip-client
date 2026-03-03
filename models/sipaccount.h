@@ -27,6 +27,7 @@ public:
      *  Посылает сигнал incomingCall
      */
     void onIncomingCall(pj::OnIncomingCallParam &prm) override;
+    int getAccountId();
 signals:
     void registrationStatusChanged(int id, QString status, QString error="");
 private:

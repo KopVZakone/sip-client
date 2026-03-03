@@ -56,7 +56,6 @@ void AccountsManager::registerAccount(int id) {
         m_account = std::make_unique<SipAccount>(id);
         connect(m_account.get(), &SipAccount::registrationStatusChanged, this, &AccountsManager::updateStatus);
         m_account->create(acc_cfg);
-        updateStatus(id, "registering");
     }
     catch(pj::Error& err)
     {
@@ -67,9 +66,10 @@ void AccountsManager::registerAccount(int id) {
 
 void AccountsManager::unregisterAccount(int id)
 {
-    if(m_account && m_account->getId() == id)
+    if(m_account && m_account->getAccountId() == id)
     {
         m_account.reset();
+        updateStatus(id, "offline");
     }
 }
 
