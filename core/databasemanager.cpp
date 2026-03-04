@@ -84,10 +84,4 @@ void DatabaseManager::seedTables()
 
     q.addBindValue("Charlie a daosijoidjaoisj xzi cwsdasd"); q.addBindValue("555-111"); q.addBindValue("");
     q.exec();
-    q.exec("DELETE FROM history");
-    // История
-    q.exec("INSERT INTO history (from_number, to_number, timestamp, duration, status) VALUES "
-           "('84950000000', '81230453000', '12.05 14:20', '05:12', 'incoming'), "
-           "('84000', '12400', '12.05 15:45', '00:00', 'missed'), "
-           "('1249504532132312300', '12495045300231231231', '04.04 10:05', '12:30', 'outgoing')");
 }
