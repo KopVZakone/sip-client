@@ -32,6 +32,7 @@ qt_add_qml_module(appsip-client
         SOURCES models/sipaccount.h models/sipaccount.cpp
         SOURCES models/sipcall.h models/sipcall.cpp
         SOURCES core/callmanager.h core/callmanager.cpp
+        SOURCES models/historymodel.h models/historymodel.cpp
 )
 target_include_directories(appsip-client
     PRIVATE

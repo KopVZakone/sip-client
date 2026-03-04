@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import SipClient
 import "../utils/Utils.js" as Utils
 Item {
     // Элемент списка
@@ -8,7 +9,7 @@ Item {
         id: callDelegate
 
         ItemDelegate {
-            width: parent.width
+            width: historyList.width
             height: 70
             padding: 10
 
@@ -28,12 +29,12 @@ Item {
                     spacing: 2
 
                     Label {
-                        text: "От: " + model.from_number
+                        text: "От: " + model.fromNumber
                         font.bold: true
                         elide: Text.ElideRight
                     }
                     Label {
-                        text: "Кому: " + model.to_number
+                        text: "Кому: " + model.toNumber
                         elide: Text.ElideRight
                     }
                 }
@@ -41,7 +42,7 @@ Item {
                 // Дата и время
                 Label {
                     Layout.preferredWidth: 80
-                    text: model.date
+                    text: model.timestamp
                     Layout.alignment: Qt.AlignRight
                     horizontalAlignment: Text.AlignRight
                 }
@@ -50,7 +51,7 @@ Item {
                 Label {
                     Layout.preferredWidth: 60
                     Layout.alignment: Qt.AlignRight
-                    text: Utils.formatTime(model.durationSeconds)
+                    text: Utils.formatTime(model.duration)
                     font.family: "Monospace"
                     horizontalAlignment: Text.AlignRight
                 }
@@ -105,9 +106,10 @@ Item {
             }
         }
         ListView {
+            id: historyList
             Layout.fillWidth: true
             Layout.fillHeight: true
-            model: historyModel
+            model: callManager.model
             delegate: callDelegate
         }
     }

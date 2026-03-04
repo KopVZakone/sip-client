@@ -1,6 +1,6 @@
 #include "sipcall.h"
 #include "callmanager.h"
-SipCall::SipCall(SipAccount &acc, int call_id) : pj::Call(acc, call_id)
+SipCall::SipCall(SipAccount &acc, int call_id) : pj::Call(acc, call_id), m_historyId{-1}
 {
 
 }
@@ -31,4 +31,9 @@ void SipCall::onCallMediaState(pj::OnCallMediaStateParam &prm)
             aud_med.startTransmit(pj::Endpoint::instance().audDevManager().getPlaybackDevMedia());
         }
     }
+}
+
+void SipCall::setHistoryId(int id)
+{
+    m_historyId = id;
 }

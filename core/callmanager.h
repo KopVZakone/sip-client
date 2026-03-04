@@ -1,6 +1,7 @@
 #ifndef CALLMANAGER_H
 #define CALLMANAGER_H
 
+#include "historymodel.h"
 #include "sipcall.h"
 #include <QObject>
 #include <QtQml>
@@ -9,6 +10,7 @@ class CallManager : public QObject
 {
     Q_OBJECT
     QML_ELEMENT
+    Q_PROPERTY(HistoryModel* model READ model CONSTANT)
     Q_PROPERTY(QString remoteCallerNumber READ remoteCallerNumber NOTIFY remoteCallerChanged)
     Q_PROPERTY(CallState callState READ callState NOTIFY callStateChanged)
     Q_PROPERTY(int callDuration READ callDuration NOTIFY callDurationChanged)
@@ -42,6 +44,7 @@ public:
     void clearCall(SipCall* call);
     void registerIncomingCall(SipCall *call);
     void updateCallStatus(SipCall *call, CallState state);
+    HistoryModel *model();
 signals:
     void remoteCallerChanged();
     void callStateChanged();
@@ -55,6 +58,8 @@ private:
     CallState m_callState;
     std::mutex m_callMutex;
     SipCall *getSafeCall();
+
+    std::unique_ptr<HistoryModel> m_model;
 };
 
 #endif // CALLMANAGER_H

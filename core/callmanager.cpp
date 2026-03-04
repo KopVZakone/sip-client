@@ -82,6 +82,7 @@ void CallManager::pauseCall()
 
 void CallManager::resumeCall()
 {
+    // TODO: пофиксить отключение собеседника после 10-20 секунд после продолжения разговора
     if (auto call = getSafeCall()) {
         pj::CallOpParam prm;
         prm.opt.flag = PJSUA_CALL_UNHOLD;
@@ -112,7 +113,7 @@ void CallManager::hangupCall()
 void CallManager::makeCall(QString uri)
 {
     SipCall *call{nullptr};
-
+    QString accountNumber {""};
     {
         // Взятие мьютекса для проверки наличия текущего звонка
         std::lock_guard<std::mutex> lock(m_callMutex);
@@ -126,14 +127,24 @@ void CallManager::makeCall(QString uri)
             call = new SipCall(*account);
             m_currentCall = call;
             m_callState = Dialing;
+            // TODO: заменить на поле SipAccount или что-то в этом роде
+            accountNumber = QString::fromStdString(account->getInfo().uri.c_str());
         }
     }
+
     // Звонок с настройками по умолчанию
     pj::CallOpParam prm(true);
+
     try {
         call->makeCall(uri.toStdString(), prm);
         emit callStateChanged();
         emit remoteCallerChanged();
+
+        // Сохранение в бд
+        auto timestamp = QDateTime::currentDateTime().toString(Qt::ISODate);
+        auto historyId = m_model->insertCallRecord(accountNumber, uri, timestamp);
+        // Установка id для сохранения статуса и длительности в бд по завершению
+        call->setHistoryId(historyId);
     }
     catch (pj::Error &err) {
         qCritical() << "Ошибка инициации звонка: " << QString::fromStdString(err.info());
@@ -208,13 +219,20 @@ void CallManager::updateCallStatus(SipCall *call, CallState state)
     emit callStateChanged();
 }
 
+HistoryModel *CallManager::model()
+{
+    return m_model.get();
+}
+
 void CallManager::updateDuration()
 {
     emit callDurationChanged();
 }
 
 CallManager::CallManager()
-    : QObject{nullptr}, m_currentCall{nullptr}, m_callState{Idle}, m_callMutex{}, m_durationTimer{}
+    : QObject{nullptr}, m_currentCall{nullptr},
+    m_callState{Idle}, m_callMutex{}, m_durationTimer{},
+    m_model{std::make_unique<HistoryModel>()}
 {
     m_durationTimer.setInterval(500);
     connect(&m_durationTimer, &QTimer::timeout, this, &CallManager::updateDuration);
