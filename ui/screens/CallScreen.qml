@@ -57,7 +57,14 @@ Item {
             Button {
                 text: "Вызов"
                 visible: callManager.callState === CallManager.Idle
-                onClicked: {}
+                enabled: numberInput.text !== ""
+                onClicked: callManager.makeCall(numberInput.text)
+                highlighted: true
+            }
+            Button {
+                text: "Вызов"
+                visible: callManager.callState === CallManager.Dialing
+                onClicked: callManager.abortDialingCall()
                 highlighted: true
             }
             // Активный вызов

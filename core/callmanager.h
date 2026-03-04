@@ -16,7 +16,7 @@ public:
     enum CallState{
         Idle = 1,
         Incoming,
-        Outcoming,
+        Dialing,
         Active,
         Paused,
         Ended,
@@ -32,15 +32,16 @@ public:
     Q_INVOKABLE void resumeCall();
     Q_INVOKABLE void hangupCall();
     Q_INVOKABLE void makeCall(QString uri);
-    Q_INVOKABLE void abortOutgoingCall();
+    Q_INVOKABLE void abortDialingCall();
     /**
      * @brief Удаляет ссылку на звонок и устанавливает статус на Idle.
      * Ничего не делает, если звонок уже удален.
-     * Не вызывает декструктор SipCall
+     * Не вызывает деструктор SipCall
      * @param call звонок для удаления.
      */
     void clearCall(SipCall* call);
     void registerIncomingCall(SipCall *call);
+    void updateCallStatus(SipCall *call, CallState state);
 signals:
     void remoteCallerChanged();
     void callStateChanged();

@@ -1,5 +1,7 @@
 #include "callmanager.h"
 
+#include "accountsmanager.h"
+
 CallManager &CallManager::instance()
 {
     static CallManager inst;
@@ -108,12 +110,49 @@ void CallManager::hangupCall()
 
 void CallManager::makeCall(QString uri)
 {
+    SipCall *call{nullptr};
 
+    {
+        // Взятие мьютекса для проверки наличия текущего звонка
+        std::lock_guard<std::mutex> lock(m_callMutex);
+        if(m_currentCall) {
+            // Уже есть другой звонок
+            return;
+        } else {
+            auto account { AccountsManager::instance().getSelectedAccount() };
+            if(!account)
+                return;
+            call = new SipCall(*account);
+            m_currentCall = call;
+            m_callState = Dialing;
+        }
+    }
+    // Звонок с настройками по умолчанию
+    pj::CallOpParam prm(true);
+    try {
+        call->makeCall(uri.toStdString(), prm);
+        emit callStateChanged();
+    }
+    catch (pj::Error &err) {
+        qCritical() << "Ошибка инициации звонка: " << QString::fromStdString(err.info());
+
+        clearCall(call);
+
+        // Ручное удаление звонка т.к. callback не будет вызван
+        delete call;
+    }
 }
 
-void CallManager::abortOutgoingCall()
+void CallManager::abortDialingCall()
 {
-
+    if (auto call = getSafeCall()) {
+        pj::CallOpParam prm;
+        try {
+            call->hangup(prm);
+        } catch (pj::Error &err) {
+            qCritical() << "Ошибка отмены звонка: " << QString::fromStdString(err.info());
+        }
+    }
 }
 void CallManager::registerIncomingCall(SipCall *call)
 {
@@ -149,6 +188,17 @@ void CallManager::registerIncomingCall(SipCall *call)
         } catch (pj::Error &err) {
             qCritical() << err.status;
             clearCall(call);
+        }
+    }
+}
+
+void CallManager::updateCallStatus(SipCall *call, CallState state)
+{
+    std::lock_guard<std::mutex> lock(m_callMutex);
+    if (m_currentCall == call) {
+        if (m_callState != state) {
+            m_callState = state;
+            emit callStateChanged();
         }
     }
 }

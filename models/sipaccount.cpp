@@ -2,7 +2,7 @@
 #include "sipcall.h"
 #include "callmanager.h"
 
-SipAccount::SipAccount(int id) : m_id(id)
+SipAccount::SipAccount(int id) : pj::Account(), m_id(id)
 {
 }
 

@@ -23,6 +23,7 @@ public:
     Q_INVOKABLE void unregisterAccount(int id);
     int selectedAccountIndex() const;
     void selectAccount(int id);
+    SipAccount *getSelectedAccount();
     ~AccountsManager();
 public slots:
     // Слот для обновления статуса регистрации в ui после регистрации
@@ -33,6 +34,7 @@ private:
     std::unique_ptr<SipAccount> m_account;
     AccountsModel *m_model;
     int m_selectedIndex;
+
     explicit AccountsManager(QObject *parent = nullptr);
 };
 

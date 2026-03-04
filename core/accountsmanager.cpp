@@ -1,7 +1,7 @@
 #include "accountsmanager.h"
-#include "settingsmanager.h"
 #include <pjsua2.hpp>
 #include <QDebug>
+#include "settingsmanager.h"
 AccountsManager::AccountsManager(QObject *parent)
     : QObject{parent}
 {
@@ -97,6 +97,13 @@ AccountsManager::~AccountsManager()
 void AccountsManager::updateStatus(int id, QString status, QString error)
 {
     m_model->updateStatus(id, status, error);
+}
+
+SipAccount *AccountsManager::getSelectedAccount()
+{
+    if(m_account && m_account->getAccountId() == m_selectedIndex && m_account->getInfo().regIsActive)
+        return m_account.get();
+    return nullptr;
 }
 
 

@@ -8,6 +8,9 @@ SipCall::SipCall(SipAccount &acc, int call_id) : pj::Call(acc, call_id)
 void SipCall::onCallState(pj::OnCallStateParam &prm)
 {
     pj::CallInfo ci = getInfo();
+    if (ci.state == PJSIP_INV_STATE_CONNECTING || ci.state == PJSIP_INV_STATE_CONFIRMED) {
+        CallManager::instance().updateCallStatus(this, CallManager::Active);
+    }
 
     if (ci.state == PJSIP_INV_STATE_DISCONNECTED) {
         // очистка после отключения
