@@ -31,7 +31,7 @@ void AccountsManager::removeAccount(int id)
 void AccountsManager::registerAccount(int id) {
     if(m_account)
     {
-        unregisterAccount(m_account->getId());
+        unregisterAccount(m_account->getAccountId());
     }
     // Получение данных из бд
     auto accountData {m_model->getAccountById(id)};
