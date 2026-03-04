@@ -11,6 +11,7 @@ HistoryModel::HistoryModel(QObject *parent) : QSqlTableModel{parent}
     select();
 }
 
+
 QVariant HistoryModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid()) return {};
@@ -57,6 +58,7 @@ void HistoryModel::updateDuration(int id, int duration)
         QModelIndex idx = matches.first();
         int row = idx.row();
         setData(index(row, fieldIndex("duration")), duration);
+        submitAll();
         emit dataChanged(idx, idx, {HistoryModel::DurationRole});
     }
 }
@@ -68,6 +70,7 @@ void HistoryModel::finalizeStatus(int id, QString finalStatus)
         QModelIndex idx = matches.first();
         int row = idx.row();
         setData(index(row, fieldIndex("status")), finalStatus);
+        submitAll();
         emit dataChanged(idx, idx, {HistoryModel::StatusRole});
     }
 }

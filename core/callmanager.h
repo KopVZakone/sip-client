@@ -5,12 +5,14 @@
 #include "sipcall.h"
 #include <QObject>
 #include <QtQml>
+#include <historyproxymodel.h>
 #include <mutex>
 class CallManager : public QObject
 {
     Q_OBJECT
     QML_ELEMENT
     Q_PROPERTY(HistoryModel* model READ model CONSTANT)
+    Q_PROPERTY(HistoryProxyModel* proxy READ proxy CONSTANT)
     Q_PROPERTY(QString remoteCallerNumber READ remoteCallerNumber NOTIFY remoteCallerChanged)
     Q_PROPERTY(CallState callState READ callState NOTIFY callStateChanged)
     Q_PROPERTY(int callDuration READ callDuration NOTIFY callDurationChanged)
@@ -28,6 +30,8 @@ public:
     QString remoteCallerNumber();
     CallState callState();
     int callDuration();
+    HistoryModel *model();
+    HistoryProxyModel *proxy();
     Q_INVOKABLE void acceptIncomingCall();
     Q_INVOKABLE void declineIncomingCall();
     Q_INVOKABLE void pauseCall();
@@ -44,7 +48,6 @@ public:
     void clearCall(SipCall* call);
     void registerIncomingCall(SipCall *call, SipAccount &callee);
     void updateCallStatus(SipCall *call, CallState state);
-    HistoryModel *model();
 signals:
     void remoteCallerChanged();
     void callStateChanged();
@@ -60,6 +63,7 @@ private:
     SipCall *getSafeCall();
 
     std::unique_ptr<HistoryModel> m_model;
+    std::unique_ptr<HistoryProxyModel> m_proxy;
 };
 
 #endif // CALLMANAGER_H

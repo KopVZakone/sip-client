@@ -227,6 +227,11 @@ HistoryModel *CallManager::model()
     return m_model.get();
 }
 
+HistoryProxyModel *CallManager::proxy()
+{
+    return m_proxy.get();
+}
+
 void CallManager::updateDuration()
 {
     emit callDurationChanged();
@@ -235,7 +240,8 @@ void CallManager::updateDuration()
 CallManager::CallManager()
     : QObject{nullptr}, m_currentCall{nullptr},
     m_callState{Idle}, m_callMutex{}, m_durationTimer{},
-    m_model{std::make_unique<HistoryModel>()}
+    m_model{std::make_unique<HistoryModel>()},
+    m_proxy{std::make_unique<HistoryProxyModel>(m_model.get())}
 {
     m_durationTimer.setInterval(500);
     connect(&m_durationTimer, &QTimer::timeout, this, &CallManager::updateDuration);

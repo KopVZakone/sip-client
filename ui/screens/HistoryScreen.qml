@@ -71,45 +71,29 @@ Item {
             id: searchField
             placeholderText: "Поиск по номеру..."
             Layout.fillWidth: true
+            onTextChanged: callManager.proxy.filterText = text
         }
 
         // Кнопки фильтрации
         Row {
-            Button { text: "Все"; }
-            Button { text: "Пропущенные"; }
-        }
-        ListModel {
-            id: historyModel
-
-            ListElement {
-                from_number:    "84950000000"
-                to_number:      "81230453000"
-                date:           "12.05 14:20"
-                durationSeconds:312
-                status:         "incoming"
+            Button {
+                text: "Все"
+                onClicked: callManager.proxy.filterStatus = ""
             }
-
-            ListElement {
-                from_number:    "84000"
-                to_number:      "12400"
-                date:           "12.05 15:45"
-                durationSeconds:0
-                status:         "missed"
+            Button {
+                text: "Пропущенные"
+                onClicked: callManager.proxy.filterStatus = "Пропущен"
             }
-
-            ListElement {
-                from_number:    "1249504532132312300"
-                to_number:      "12495045300231231231"
-                date:           "04.04 10:05"
-                durationSeconds:750
-                status:         "outgoing"
+            Button {
+                text: "Очистить историю"
+                onClicked: callManager.model.clearHistory()
             }
         }
         ListView {
             id: historyList
             Layout.fillWidth: true
             Layout.fillHeight: true
-            model: callManager.model
+            model: callManager.proxy
             delegate: callDelegate
         }
     }

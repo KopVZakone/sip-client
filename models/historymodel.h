@@ -16,13 +16,14 @@ public:
         TimestampRole
     };
     explicit HistoryModel(QObject *parent = nullptr);
+    Q_INVOKABLE void clearHistory();
+
 
     QVariant data(const QModelIndex &index, int role) const;
     QHash<int, QByteArray> roleNames() const;
     int insertCallRecord(QString from, QString to, QString timestamp);
     void updateDuration(int id, int duration);
     void finalizeStatus(int id, QString finalStatus);
-    Q_INVOKABLE void clearHistory();
 };
 
 #endif // HISTORYMODEL_H
