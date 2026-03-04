@@ -29,6 +29,7 @@ public:
     Q_INVOKABLE void acceptIncomingCall();
     Q_INVOKABLE void declineIncomingCall();
     Q_INVOKABLE void pauseCall();
+    Q_INVOKABLE void resumeCall();
     Q_INVOKABLE void hangupCall();
     Q_INVOKABLE void makeCall(QString uri);
     Q_INVOKABLE void abortOutgoingCall();

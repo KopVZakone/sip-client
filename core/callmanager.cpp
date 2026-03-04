@@ -36,26 +36,74 @@ void CallManager::acceptIncomingCall()
         prm.statusCode = PJSIP_SC_OK;
         try {
             call->answer(prm);
+            m_callState = Active;
+            emit callStateChanged();
         } catch (pj::Error &err)
         {
-
+            qCritical() << "Ошибка принятия:" << QString::fromStdString(err.info());
         }
     }
 }
 
 void CallManager::declineIncomingCall()
 {
-
+    if (auto call = getSafeCall())
+    {
+        pj::CallOpParam prm;
+        prm.statusCode = PJSIP_SC_DECLINE;
+        try {
+            call->answer(prm);
+            // clearCall(call);
+        } catch (pj::Error &err)
+        {
+          qCritical() << "Ошибка отклонения: " << QString::fromStdString(err.info());
+        }
+    }
 }
 
 void CallManager::pauseCall()
 {
+    if (auto call = getSafeCall())
+    {
+        pj::CallOpParam prm;
+        try {
+            call->setHold(prm);
+            m_callState = Paused;
+            emit callStateChanged();
+        } catch (pj::Error &err)
+        {
+          qCritical() << "Ошибка постановки на паузу: " << QString::fromStdString(err.info());
+        }
+    }
+}
 
+void CallManager::resumeCall()
+{
+    if (auto call = getSafeCall()) {
+        pj::CallOpParam prm;
+        prm.opt.flag = PJSUA_CALL_UNHOLD;
+        try {
+            call->reinvite(prm);
+            m_callState = Active;
+            emit callStateChanged();
+        } catch (pj::Error &err) {
+            qCritical() << "Ошибка снятия с паузы: " << QString::fromStdString(err.info());
+        }
+    }
 }
 
 void CallManager::hangupCall()
 {
-
+    if (auto call = getSafeCall()) {
+        pj::CallOpParam prm;
+        try {
+            m_callState = Ended;
+            emit callStateChanged();
+            call->hangup(prm);
+        } catch (pj::Error &err) {
+            qCritical() << "Ошибка сброса звонка: " << QString::fromStdString(err.info());
+        }
+    }
 }
 
 void CallManager::makeCall(QString uri)

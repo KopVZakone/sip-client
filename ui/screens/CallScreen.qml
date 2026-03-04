@@ -65,23 +65,30 @@ Item {
                 text: "Пауза"
                 visible: root.isOngoingCall
                 checkable: true
+                onClicked: {
+                    if (!checked) {
+                        callManager.resumeCall()
+                    } else {
+                        callManager.pauseCall()
+                    }
+                }
             }
             Button {
                 text: "Сброс"
                 visible: root.isOngoingCall
                 palette.button: "#e74c3c";
-                onClicked: { }
+                onClicked: callManager.hangupCall()
             }
             // Входящий вызов
             Button {
                 text: "Принять"
                 visible: callManager.callState === CallManager.Incoming
-                onClicked: { }
+                onClicked: callManager.acceptIncomingCall()
             }
             Button {
                 text: "Отклонить"
                 visible: callManager.callState === CallManager.Incoming
-                onClicked: { }
+                onClicked: callManager.declineIncomingCall()
             }
         }
         // Громкость и mute

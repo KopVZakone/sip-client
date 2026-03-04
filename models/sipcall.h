@@ -10,6 +10,7 @@ class SipCall : public pj::Call
 public:
     explicit SipCall(SipAccount &acc, int call_id = PJSUA_INVALID_ID);
     void onCallState(pj::OnCallStateParam &prm) override;
+    void onCallMediaState(pj::OnCallMediaStateParam &prm) override;
 };
 
 #endif // SIPCALL_H
