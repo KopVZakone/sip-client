@@ -42,7 +42,7 @@ public:
      * @param call звонок для удаления.
      */
     void clearCall(SipCall* call);
-    void registerIncomingCall(SipCall *call);
+    void registerIncomingCall(SipCall *call, SipAccount &callee);
     void updateCallStatus(SipCall *call, CallState state);
     HistoryModel *model();
 signals:

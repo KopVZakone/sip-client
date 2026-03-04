@@ -62,8 +62,9 @@ Item {
                 highlighted: true
             }
             Button {
-                text: "Вызов"
+                text: "Отмена"
                 visible: callManager.callState === CallManager.Dialing
+                palette.button: "#e74c3c";
                 onClicked: callManager.abortDialingCall()
                 highlighted: true
             }

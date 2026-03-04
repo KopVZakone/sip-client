@@ -35,7 +35,12 @@ void SipAccount::onRegStarted(pj::OnRegStartedParam &prm)
 void SipAccount::onIncomingCall(pj::OnIncomingCallParam &prm)
 {
     auto currentCall = new SipCall(*this, prm.callId);
-    CallManager::instance().registerIncomingCall(currentCall);
+    CallManager::instance().registerIncomingCall(currentCall, *this);
+}
+
+QString SipAccount::getUsername()
+{
+    return QString::fromStdString(getInfo().uri.c_str());
 }
 
 int SipAccount::getAccountId()

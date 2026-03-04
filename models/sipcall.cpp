@@ -13,8 +13,54 @@ void SipCall::onCallState(pj::OnCallStateParam &prm)
     }
 
     if (ci.state == PJSIP_INV_STATE_DISCONNECTED) {
-        // очистка после отключения
+        // Очистка после отключения
         CallManager::instance().clearCall(this);
+        QString finalStatus {"Error"};
+        // Сохранение статуса в бд
+        std::optional<int> duration{};
+        if (ci.role == PJSIP_ROLE_UAC) {
+            // Исходящий
+            switch (ci.lastStatusCode){
+            case PJSIP_SC_OK:
+                duration = getInfo().connectDuration.sec;
+                finalStatus = "Завершен";
+                break;
+            case PJSIP_SC_REQUEST_TERMINATED:
+                finalStatus = "Отменен";
+                break;
+            case PJSIP_SC_BUSY_HERE:
+                finalStatus = "Занят";
+                break;
+            case PJSIP_SC_NOT_FOUND:
+                finalStatus = "Не найден";
+                break;
+            default:
+                qDebug() << "Не обработанный код исходящего звонка: " << ci.lastStatusCode;
+                break;
+            }
+        } else {
+            // Входящий
+            switch (ci.lastStatusCode){
+            case PJSIP_SC_OK:
+                duration = getInfo().connectDuration.sec;
+                finalStatus = "Завершен";
+                break;
+            case PJSIP_SC_REQUEST_TERMINATED:
+            case PJSIP_SC_BUSY_HERE:
+                finalStatus = "Пропущен";
+                break;
+            case PJSIP_SC_DECLINE:
+                finalStatus = "Отклонен";
+                break;
+            default:
+                qDebug() << "Не обработанный код входящего звонка: " << ci.lastStatusCode;
+                break;
+            }
+        }
+        if(duration.has_value()){
+            CallManager::instance().model()->updateDuration(m_historyId, duration.value());
+        }
+        CallManager::instance().model()->finalizeStatus(m_historyId, finalStatus);
         delete this;
     }
 }

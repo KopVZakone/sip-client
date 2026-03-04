@@ -113,7 +113,7 @@ void CallManager::hangupCall()
 void CallManager::makeCall(QString uri)
 {
     SipCall *call{nullptr};
-    QString accountNumber {""};
+    QString accountUsername {""};
     {
         // Взятие мьютекса для проверки наличия текущего звонка
         std::lock_guard<std::mutex> lock(m_callMutex);
@@ -128,7 +128,7 @@ void CallManager::makeCall(QString uri)
             m_currentCall = call;
             m_callState = Dialing;
             // TODO: заменить на поле SipAccount или что-то в этом роде
-            accountNumber = QString::fromStdString(account->getInfo().uri.c_str());
+            accountUsername = account->getUsername();
         }
     }
 
@@ -142,7 +142,7 @@ void CallManager::makeCall(QString uri)
 
         // Сохранение в бд
         auto timestamp = QDateTime::currentDateTime().toString(Qt::ISODate);
-        auto historyId = m_model->insertCallRecord(accountNumber, uri, timestamp);
+        auto historyId = m_model->insertCallRecord(accountUsername, uri, timestamp);
         // Установка id для сохранения статуса и длительности в бд по завершению
         call->setHistoryId(historyId);
     }
@@ -167,9 +167,9 @@ void CallManager::abortDialingCall()
         }
     }
 }
-void CallManager::registerIncomingCall(SipCall *call)
+void CallManager::registerIncomingCall(SipCall *call, SipAccount &callee)
 {
-    bool isBusy = false;
+    bool isBusy {false};
     {
         // Взятие мьютекса для проверки наличия текущего звонка
         // ответ на звонок подается после проверки для исключения блокировки
@@ -182,7 +182,10 @@ void CallManager::registerIncomingCall(SipCall *call)
             m_callState = Incoming;
         }
     }
-
+    auto from {QString::fromStdString(call->getInfo().remoteUri)};
+    auto timestamp = QDateTime::currentDateTime().toString(Qt::ISODate);
+    int historyId {m_model->insertCallRecord(from,callee.getUsername(), timestamp)};
+    call->setHistoryId(historyId);
     if(isBusy)
     {
         pj::CallOpParam opPrm;
