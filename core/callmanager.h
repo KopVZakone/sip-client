@@ -46,9 +46,12 @@ signals:
     void remoteCallerChanged();
     void callStateChanged();
     void callDurationChanged();
+private slots:
+    void updateDuration();
 private:
     explicit CallManager();
     SipCall *m_currentCall;
+    QTimer m_durationTimer;
     CallState m_callState;
     std::mutex m_callMutex;
     SipCall *getSafeCall();

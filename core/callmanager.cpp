@@ -10,11 +10,13 @@ CallManager &CallManager::instance()
 
 QString CallManager::remoteCallerNumber()
 {
-    std::lock_guard<std::mutex> lock(m_callMutex);
-    if(!m_currentCall)
+    if (auto call = getSafeCall())
+    {
+        pj::CallInfo ci = m_currentCall->getInfo();
+        return QString::fromStdString(ci.remoteUri);
+    } else {
         return "";
-    pj::CallInfo ci = m_currentCall->getInfo();
-    return QString::fromStdString(ci.remoteUri);
+    }
 }
 
 CallManager::CallState CallManager::callState()
@@ -24,10 +26,12 @@ CallManager::CallState CallManager::callState()
 
 int CallManager::callDuration()
 {
-    std::lock_guard<std::mutex> lock(m_callMutex);
-    if(!m_currentCall)
+    if (auto call = getSafeCall())
+    {
+        return call->getInfo().connectDuration.sec;
+    } else {
         return 0;
-    return m_currentCall->getInfo().connectDuration.sec;
+    }
 }
 
 void CallManager::acceptIncomingCall()
@@ -38,8 +42,6 @@ void CallManager::acceptIncomingCall()
         prm.statusCode = PJSIP_SC_OK;
         try {
             call->answer(prm);
-            m_callState = Active;
-            emit callStateChanged();
         } catch (pj::Error &err)
         {
             qCritical() << "Ошибка принятия:" << QString::fromStdString(err.info());
@@ -55,7 +57,6 @@ void CallManager::declineIncomingCall()
         prm.statusCode = PJSIP_SC_DECLINE;
         try {
             call->answer(prm);
-            // clearCall(call);
         } catch (pj::Error &err)
         {
           qCritical() << "Ошибка отклонения: " << QString::fromStdString(err.info());
@@ -132,6 +133,7 @@ void CallManager::makeCall(QString uri)
     try {
         call->makeCall(uri.toStdString(), prm);
         emit callStateChanged();
+        emit remoteCallerChanged();
     }
     catch (pj::Error &err) {
         qCritical() << "Ошибка инициации звонка: " << QString::fromStdString(err.info());
@@ -194,32 +196,46 @@ void CallManager::registerIncomingCall(SipCall *call)
 
 void CallManager::updateCallStatus(SipCall *call, CallState state)
 {
-    std::lock_guard<std::mutex> lock(m_callMutex);
-    if (m_currentCall == call) {
+    if (getSafeCall() == call) {
         if (m_callState != state) {
             m_callState = state;
-            emit callStateChanged();
         }
     }
+    if(state == Active){
+        emit callDurationChanged();
+        QMetaObject::invokeMethod(&m_durationTimer, "start", Qt::QueuedConnection);
+    }
+    emit callStateChanged();
+}
+
+void CallManager::updateDuration()
+{
+    emit callDurationChanged();
 }
 
 CallManager::CallManager()
-    : QObject{nullptr}, m_currentCall{nullptr}, m_callState(Idle), m_callMutex{}
-{}
+    : QObject{nullptr}, m_currentCall{nullptr}, m_callState{Idle}, m_callMutex{}, m_durationTimer{}
+{
+    m_durationTimer.setInterval(500);
+    connect(&m_durationTimer, &QTimer::timeout, this, &CallManager::updateDuration);
+}
 
 SipCall *CallManager::getSafeCall()
 {
-    // Барьер памяти дл получения актуального значения ссылки
+    // Барьер памяти для получения актуального значения указателя
     std::lock_guard<std::mutex> lock(m_callMutex);
     return m_currentCall;
 }
 
 void CallManager::clearCall(SipCall *call)
 {
-    std::lock_guard<std::mutex> lock(m_callMutex);
-    if (m_currentCall == call) {
-        m_currentCall = nullptr;
-        m_callState = Idle;
-        emit callStateChanged();
+    {
+        std::lock_guard<std::mutex> lock(m_callMutex);
+        if (m_currentCall == call) {
+            m_currentCall = nullptr;
+        }
     }
+    m_callState = Idle;
+    emit callStateChanged();
+    QMetaObject::invokeMethod(&m_durationTimer, "stop", Qt::QueuedConnection);
 }
