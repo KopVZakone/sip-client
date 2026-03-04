@@ -229,13 +229,17 @@ SipCall *CallManager::getSafeCall()
 
 void CallManager::clearCall(SipCall *call)
 {
+    bool cleared {false};
     {
         std::lock_guard<std::mutex> lock(m_callMutex);
         if (m_currentCall == call) {
             m_currentCall = nullptr;
+            cleared = true;
         }
     }
-    m_callState = Idle;
-    emit callStateChanged();
-    QMetaObject::invokeMethod(&m_durationTimer, "stop", Qt::QueuedConnection);
+    if(cleared){
+        m_callState = Idle;
+        emit callStateChanged();
+        QMetaObject::invokeMethod(&m_durationTimer, "stop", Qt::QueuedConnection);
+    }
 }
