@@ -34,6 +34,12 @@ void SipCall::onCallState(pj::OnCallStateParam &prm)
             case PJSIP_SC_NOT_FOUND:
                 finalStatus = "Не найден";
                 break;
+            case PJSIP_SC_DECLINE:
+                finalStatus = "Отклонен";
+                break;
+            case PJSIP_SC_TEMPORARILY_UNAVAILABLE:
+                finalStatus = "Недоступен";
+                break;
             default:
                 qDebug() << "Не обработанный код исходящего звонка: " << ci.lastStatusCode;
                 break;
