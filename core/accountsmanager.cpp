@@ -3,7 +3,8 @@
 #include <QDebug>
 #include "settingsmanager.h"
 AccountsManager::AccountsManager(QObject *parent)
-    : QObject{parent}
+    : QObject{parent},
+    m_contactsModel{std::make_unique<ContactsModel>()}
 {
     m_model = new AccountsModel(this);
 }
@@ -53,7 +54,7 @@ void AccountsManager::registerAccount(int id) {
 
     try
     {
-        m_account = std::make_unique<SipAccount>(id);
+        m_account = std::make_unique<SipAccount>(id, username, domain);
         connect(m_account.get(), &SipAccount::registrationStatusChanged, this, &AccountsManager::updateStatus);
         m_account->create(acc_cfg);
     }
@@ -78,11 +79,24 @@ int AccountsManager::selectedAccountIndex() const
     return m_selectedIndex;
 }
 
+QString AccountsManager::activeUsername() const
+{
+    if(m_account
+        && m_account->getAccountId() == m_selectedIndex
+        && m_account->getInfo().regIsActive)
+        return m_account->getUsername();
+    return "";
+}
+
 void AccountsManager::selectAccount(int id)
 {
     m_selectedIndex = id;
     SettingsManager::instance().setVal(SettingsManager::KeySelectedAccount, id);
     emit selectedAccountChanged();
+    if(m_account && m_account->getAccountId() == m_selectedIndex)
+    {
+        emit activeUsernameChanged();
+    }
 }
 
 AccountsManager::~AccountsManager()
@@ -97,6 +111,10 @@ AccountsManager::~AccountsManager()
 void AccountsManager::updateStatus(int id, QString status, QString error)
 {
     m_model->updateStatus(id, status, error);
+    if(id == m_selectedIndex)
+    {
+        emit activeUsernameChanged();
+    }
 }
 
 SipAccount *AccountsManager::getSelectedAccount()

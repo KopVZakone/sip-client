@@ -2,8 +2,10 @@
 #include "sipcall.h"
 #include "callmanager.h"
 
-SipAccount::SipAccount(int id) : pj::Account(), m_id(id)
+SipAccount::SipAccount(int id, QString username, QString domain)
+    : pj::Account{}, m_id{id}, m_username{username}, m_domain{domain}
 {
+
 }
 
 void SipAccount::onRegState(pj::OnRegStateParam &prm)
@@ -38,12 +40,17 @@ void SipAccount::onIncomingCall(pj::OnIncomingCallParam &prm)
     CallManager::instance().registerIncomingCall(currentCall, *this);
 }
 
-QString SipAccount::getUsername()
+QString SipAccount::getUsername() const
 {
-    return QString::fromStdString(getInfo().uri.c_str());
+    return m_username;
 }
 
-int SipAccount::getAccountId()
+QString SipAccount::getDomain() const
+{
+    return m_domain;
+}
+
+int SipAccount::getAccountId() const
 {
     return m_id;
 }

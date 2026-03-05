@@ -46,7 +46,7 @@ void DatabaseManager::createTables() {
     // Таблица контактов
     q.exec("CREATE TABLE IF NOT EXISTS contacts ("
            "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-           "name TEXT, phone TEXT UNIQUE, info TEXT)");
+           "name TEXT, phone TEXT, info TEXT)");
 
     // Таблица истории
     q.exec("CREATE TABLE IF NOT EXISTS history ("

@@ -1,13 +1,37 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import SipClient
 Item {
+    id: root
+
+    // сигнал для навигации на экран звонка
+    signal contactCalled(string number)
+
+
+    function openEditor(contData = null) {
+        if (contData) {
+            contactDialog.editingId = contData.id
+            contactDialog.title = "Редактировать контакт"
+            nameField.text = contData.name
+            phoneField.text = contData.phone
+            infoField.text = contData.info
+        } else {
+            contactDialog.editingId = -1
+            contactDialog.title = "Новый контакт"
+            nameField.clear()
+            phoneField.clear()
+            infoField.clear()
+        }
+        contactDialog.open()
+    }
+
     // Элемент списка
     Component {
         id: contactDelegate
         ItemDelegate {
-            id: root
-            width: parent.width // Заменить т.к. parent в ItemDelegate не рекомендуется использовать
+            id: delegateRoot
+            width: contactsView.width
 
             contentItem: RowLayout {
                 spacing: 15
@@ -27,7 +51,7 @@ Item {
                     }
                     // Номер
                     Label {
-                        text: model.number
+                        text: model.phone
                         color: "#666666"
                         font.pixelSize: 13
                     }
@@ -42,6 +66,21 @@ Item {
                         maximumLineCount: 1
                     }
                 }
+                ToolButton {
+                    text: "🔧"
+                    font.pixelSize: 20
+                    Layout.alignment: Qt.AlignRight
+                    Layout.preferredWidth: 40
+                    onClicked: root.openEditor(model)
+                }
+
+                ToolButton {
+                    text: "❌"
+                    font.pixelSize: 20
+                    Layout.alignment: Qt.AlignRight
+                    Layout.preferredWidth: 40
+                    onClicked: accountsManager.contactsModel.removeContact(model.id)
+                }
                 // Кнопка вызова
                 ToolButton {
                     text: "📞"
@@ -50,9 +89,7 @@ Item {
                     Layout.preferredWidth: 40
                     focusPolicy: Qt.NoFocus
 
-                    onClicked: {
-                        // TODO: Переход на главную с подстановкой номера в поле ввода
-                    }
+                    onClicked: contactCalled(model.phone)
                 }
             }
             Rectangle {
@@ -62,41 +99,67 @@ Item {
                 color: "#F0F0F0"
             }
         }
-
-    }
-    ListModel {
-        id: contactModel
-        ListElement {
-            name: "Alice";
-            number: "123-456"
-            info: "Some info"
-        }
-        ListElement {
-            name: "Bob"
-            number: "987-654"
-            info:   "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum faucibus volutpat gravida. Sed mollis tellus risus,
-                    sed rhoncus ipsum volutpat eget. Sed a commodo ante, et tincidunt odio.
-                    Quisque elementum quam non mi sollicitudin congue. Vestibulum ante ipsum
-                    primis in faucibus orci luctus et ultrices posuere cubilia curae;
-                    Phasellus in semper quam, in viverra risus. Pellentesque scelerisque
-                    consectetur lectus, eu pretium erat tempus ac. Curabitur augue tellus,
-                    luctus non posuere finibus, finibus vel libero. Ut lobortis, nibh a accumsan dignissim,
-                    purus erat condimentum libero, in ultricies nibh nunc hendrerit leo. Aenean iaculis ultrices
-                    est id vehicula. Etiam sit amet tincidunt ipsum. Vivamus vel ex tincidunt,
-                    lacinia lacus maximus, tristique orci. Fusce varius risus nec accumsan hendrerit. "
-        }
-        ListElement {
-            name: "Charlie a daosijoidjaoisj xzi cwsdasd"
-            number: "555-111"
-            info: ""
-        }
     }
 
-    ListView {
+    Dialog {
+        id: contactDialog
+        anchors.centerIn: parent
+        width: parent.width * 0.9
+        modal: true
+        standardButtons: Dialog.Save | Dialog.Cancel
+
+        property int editingId: -1
+
+        ColumnLayout {
+            width: parent.width
+            spacing: 10
+
+            TextField {
+                id: nameField
+                placeholderText: "Имя контакта"
+                Layout.fillWidth: true
+            }
+            TextField {
+                id: phoneField
+                placeholderText: "Номер телефона"
+                inputMethodHints: Qt.ImhDialableCharactersOnly
+                Layout.fillWidth: true
+            }
+            TextArea {
+                id: infoField
+                placeholderText: "Дополнительная информация"
+                Layout.fillWidth: true
+                implicitHeight: 80
+            }
+        }
+
+        onAccepted: {
+            accountsManager.contactsModel.saveContact(
+                editingId,
+                nameField.text,
+                phoneField.text,
+                infoField.text
+            )
+        }
+    }
+    ColumnLayout {
         anchors.fill: parent
-        model: contactModel
-        delegate: contactDelegate
-        highlight: Rectangle { color: "lightsteelblue"; radius: 5 }
-        focus: true
+        anchors.margins: 10
+
+        Button {
+            text: "+ Добавить контакт"
+            Layout.fillWidth: true
+            onClicked: root.openEditor()
+        }
+        ListView {
+            id: contactsView
+            Layout.fillHeight: true;
+            Layout.fillWidth: true;
+            model: accountsManager.contactsModel
+            delegate: contactDelegate
+            spacing: 10
+            highlight: Rectangle { color: "lightsteelblue"; radius: 5 }
+            focus: true
+        }
     }
 }

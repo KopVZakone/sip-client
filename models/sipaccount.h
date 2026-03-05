@@ -11,7 +11,7 @@ class SipAccount : public QObject, public pj::Account
 {
     Q_OBJECT
 public:
-    SipAccount(int id);
+    SipAccount(int id, QString username, QString domain);
     /**
      * @brief Callback по изменению статуса регистрации.
      * Посылает сигнал registrationStatusChanged
@@ -27,12 +27,15 @@ public:
      *  Посылает сигнал incomingCall
      */
     void onIncomingCall(pj::OnIncomingCallParam &prm) override;
-    QString getUsername();
-    int getAccountId();
+    QString getUsername() const;
+    QString getDomain() const;
+    int getAccountId() const;
 signals:
     void registrationStatusChanged(int id, QString status, QString error="");
 private:
     int m_id;
+    QString m_username;
+    QString m_domain;
 };
 
 #endif // SIPACCOUNT_H

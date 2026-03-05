@@ -23,8 +23,15 @@ ApplicationWindow {
         id: stackView
         currentIndex: bar.currentIndex
         anchors.fill: parent
-        CallScreen {}
-        ContactsScreen {}
+        CallScreen {
+            id: callScreen
+        }
+        ContactsScreen {
+            onContactCalled : (number)=>{
+                callScreen.currentNumber = number
+                bar.currentIndex = 0
+            }
+        }
         HistoryScreen {}
         AccountsScreen {}
         SettingsScreen {}

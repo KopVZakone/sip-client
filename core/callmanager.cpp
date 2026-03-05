@@ -110,10 +110,11 @@ void CallManager::hangupCall()
     }
 }
 
-void CallManager::makeCall(QString uri)
+void CallManager::makeCall(QString remoteUsername)
 {
     SipCall *call{nullptr};
     QString accountUsername {""};
+    QString accountDomain {""};
     {
         // Взятие мьютекса для проверки наличия текущего звонка
         std::lock_guard<std::mutex> lock(m_callMutex);
@@ -127,24 +128,27 @@ void CallManager::makeCall(QString uri)
             call = new SipCall(*account);
             m_currentCall = call;
             m_callState = Dialing;
-            // TODO: заменить на поле SipAccount или что-то в этом роде
             accountUsername = account->getUsername();
+            accountDomain = account->getDomain();
         }
     }
 
+    QString uri = QString("sip:%1@%2").arg(remoteUsername, accountDomain);
     // Звонок с настройками по умолчанию
     pj::CallOpParam prm(true);
-
     try {
-        call->makeCall(uri.toStdString(), prm);
-        emit callStateChanged();
-        emit remoteCallerChanged();
-
         // Сохранение в бд
         auto timestamp = QDateTime::currentDateTime().toString(Qt::ISODate);
         auto historyId = m_model->insertCallRecord(accountUsername, uri, timestamp);
         // Установка id для сохранения статуса и длительности в бд по завершению
         call->setHistoryId(historyId);
+
+
+        // Только после сохранения начать звонок
+        call->makeCall(uri.toStdString(), prm);
+
+
+
     }
     catch (pj::Error &err) {
         qCritical() << "Ошибка инициации звонка: " << QString::fromStdString(err.info());
@@ -154,6 +158,8 @@ void CallManager::makeCall(QString uri)
         // Ручное удаление звонка т.к. callback не будет вызван
         delete call;
     }
+    emit callStateChanged();
+    emit remoteCallerChanged();
 }
 
 void CallManager::abortDialingCall()

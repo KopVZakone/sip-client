@@ -5,13 +5,24 @@ import SipClient
 import "../utils/Utils.js" as Utils
 Item {
     id: root
+    property alias currentNumber: numberInput.text
     readonly property bool isOngoingCall: callManager.callState === CallManager.Active ||
                                             callManager.callState === CallManager.Paused ||
                                             callManager.callState === CallManager.Ended;
-
+    readonly property bool activeUserRegistered: accountsManager.activeUsername !== ""
     ColumnLayout {
         anchors.fill: parent
         spacing: 20
+
+        //Информация о пользователе
+        Label {
+            text: !root.activeUserRegistered ? "Активный аккаунт не зарегестрирован"
+                                                        : "Активный аккаунт: " + accountsManager.activeUsername
+            visible: callManager.callState === CallManager.Idle
+            Layout.fillWidth: true
+            horizontalAlignment: Text.AlignHCenter
+            font.pixelSize: 18
+        }
 
         // Поле ввода номера
         TextField {
@@ -57,7 +68,7 @@ Item {
             Button {
                 text: "Вызов"
                 visible: callManager.callState === CallManager.Idle
-                enabled: numberInput.text !== ""
+                enabled: (numberInput.text !== "") && root.activeUserRegistered
                 onClicked: callManager.makeCall(numberInput.text)
                 highlighted: true
             }
