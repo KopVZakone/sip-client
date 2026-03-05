@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
-
+import SipClient
 Item {
     id: root
 
@@ -66,19 +66,19 @@ Item {
                         // Анимация при попытке подключения
                         SequentialAnimation {
                             running: model.regStatus === "registering"
+                            alwaysRunToEnd: true
                             loops: Animation.Infinite
-
-                            OpacityAnimator {
-                                target: statusLed
-                                from: 0.3
-                                to: 1
-                                duration: 1000
-                            }
 
                             OpacityAnimator {
                                 target: statusLed
                                 from: 1
                                 to: 0.3
+                                duration: 1000
+                            }
+                            OpacityAnimator {
+                                target: statusLed
+                                from: 0.3
+                                to: 1
                                 duration: 1000
                             }
                         }
