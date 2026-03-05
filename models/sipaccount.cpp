@@ -2,8 +2,9 @@
 #include "sipcall.h"
 #include "callmanager.h"
 
-SipAccount::SipAccount(int id, QString username, QString domain)
-    : pj::Account{}, m_id{id}, m_username{username}, m_domain{domain}
+
+SipAccount::SipAccount(int id, QString username, QString domain, pjsua_transport_id transportId)
+    : pj::Account{}, m_id{id}, m_username{username}, m_domain{domain}, m_transportId {transportId}
 {
 
 }
@@ -53,4 +54,9 @@ QString SipAccount::getDomain() const
 int SipAccount::getAccountId() const
 {
     return m_id;
+}
+
+pjsua_transport_id SipAccount::getTransportId() const
+{
+    return m_transportId;
 }

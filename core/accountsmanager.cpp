@@ -2,6 +2,7 @@
 #include <pjsua2.hpp>
 #include <QDebug>
 #include "settingsmanager.h"
+#include <transportmanager.h>
 AccountsManager::AccountsManager(QObject *parent)
     : QObject{parent},
     m_contactsModel{std::make_unique<ContactsModel>()}
@@ -42,6 +43,12 @@ void AccountsManager::registerAccount(int id) {
     [[maybe_unused]]const int port = accountData["port"].toInt();
     [[maybe_unused]]const QString protocol {accountData["protocol"].toString()};
 
+    // Создание транспорта
+    auto transportId = TransportManager::instance().createTransport(protocol, port);
+    if (!transportId.has_value()){
+        updateStatus(id, "error", "Порт не доступен");
+        return;
+    }
     //Регистрация
     pj::AccountConfig acc_cfg;
     QString idUri = QString("sip:%1@%2").arg(username, domain);
@@ -49,18 +56,17 @@ void AccountsManager::registerAccount(int id) {
     QString regUri = QString("sip:%1").arg(domain);
     acc_cfg.regConfig.registrarUri = regUri.toStdString();
     pj::AuthCredInfo cred("digest", "*", username.toStdString(), 0, password.toStdString());
-    // TODO: добавить создание транспорта
     acc_cfg.sipConfig.authCreds.push_back(cred);
-
+    acc_cfg.sipConfig.transportId = transportId.value();
     try
     {
-        m_account = std::make_unique<SipAccount>(id, username, domain);
+        m_account = std::make_unique<SipAccount>(id, username, domain, transportId.value());
         connect(m_account.get(), &SipAccount::registrationStatusChanged, this, &AccountsManager::updateStatus);
         m_account->create(acc_cfg);
     }
     catch(pj::Error& err)
     {
-        qCritical() << "PJSIP Ошибка на старте:" << QString::fromStdString(err.info());
+        qCritical() << "Ошибка создания аккаунта:" << QString::fromStdString(err.info());
         m_account.reset();
     }
 }
@@ -69,6 +75,7 @@ void AccountsManager::unregisterAccount(int id)
 {
     if(m_account && m_account->getAccountId() == id)
     {
+        TransportManager::instance().releaseTransport(m_account->getTransportId());
         m_account.reset();
         updateStatus(id, "offline");
     }

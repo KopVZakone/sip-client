@@ -12,17 +12,12 @@ void SipManager::start()
         m_endpoint->libCreate();
 
         pj::EpConfig ep_cfg;
-        ep_cfg.uaConfig.threadCnt = 0;
+        ep_cfg.uaConfig.threadCnt = 2;
+        ep_cfg.logConfig.level = 0;
+        ep_cfg.logConfig.consoleLevel = 0;
         m_endpoint->libInit(ep_cfg);
 
         m_endpoint->libStart();
-
-
-        // Создание транспорта по умолчанию для дебага
-        // TODO: заменить на создание при регистрации
-        pj::TransportConfig tcfg;
-        tcfg.port = 30123;
-        m_endpoint->transportCreate(PJSIP_TRANSPORT_UDP, tcfg);
 
     } catch (pj::Error &err) {
         qCritical() << "PJSIP Ошибка на старте:" << QString::fromStdString(err.info());
