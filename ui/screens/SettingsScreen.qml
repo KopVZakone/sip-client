@@ -22,6 +22,26 @@ ScrollView {
         color: "#2196F3"
         id: headerLabel
     }
+    component SettingsGroup : ColumnLayout {
+            default property alias content: innerContent.data
+            spacing: 0
+            Layout.fillWidth: true
+
+            Rectangle {
+                Layout.fillWidth: true
+                implicitHeight: innerContent.implicitHeight + 20
+                color: "white"
+                radius: 12
+                border.color: "#e2e8f0"
+
+                ColumnLayout {
+                    id: innerContent
+                    anchors.fill: parent
+                    anchors.margins: 10
+                    spacing: 10
+                }
+            }
+        }
     // Компонент элемента списка настроек
     // Название слева, переключатель справа
     component SettingsItem: RowLayout {
@@ -38,6 +58,7 @@ ScrollView {
         Label {
             id: label
             Layout.fillWidth: true
+            color: theme.textPrimary
             elide: Text.ElideRight
             verticalAlignment: Text.AlignVCenter
         }
@@ -55,32 +76,40 @@ ScrollView {
 
 
         SettingsHeader { text: "Аудио" }
-        SettingsItem {
-            text: "Микрофон"
-            ComboBox {
-                model: audioManager.inputDevices
-                currentIndex: model.indexOf(audioManager.inputDevice)
-                onActivated: audioManager.inputDevice = currentText
+        SettingsGroup {
+            SettingsItem {
+                text: "Микрофон"
+                ComboBox {
+                    model: audioManager.inputDevices
+                    implicitWidth: 200
+                    height:30
+                    currentIndex: model.indexOf(audioManager.inputDevice)
+                    onActivated: audioManager.inputDevice = currentText
+                    background: Rectangle { radius: 8; color: "#f8f9fa"; border.color: "#dcdde1" }
+                }
+            }
+            MenuSeparator { Layout.fillWidth: true }
+            SettingsItem {
+                text: "Динамики"
+                ComboBox {
+                    model: audioManager.outputDevices
+                    implicitWidth: 200
+                    height:30
+                    currentIndex: model.indexOf(audioManager.outputDevice)
+                    onActivated: audioManager.outputDevice = currentText
+                    background: Rectangle { radius: 8; color: "#f8f9fa"; border.color: "#dcdde1" }
+                }
             }
         }
-        MenuSeparator { Layout.fillWidth: true }
-        SettingsItem {
-            text: "Динамики"
-            ComboBox {
-                model: audioManager.outputDevices
-                currentIndex: model.indexOf(audioManager.outputDevice)
-                onActivated: audioManager.outputDevice = currentText
-            }
-        }
-        // WIP: другие настройки в зависимости от настроек библиотеки
-
         SettingsHeader { text: "Система" }
-        SettingsItem {
-            text: "Версия приложения"
-            Label {
-                Layout.alignment: Qt.AlignRight
-                text: "v0.0.1"
-                color: "gray"
+        SettingsGroup {
+            SettingsItem {
+                text: "Версия приложения"
+                Label {
+                    Layout.alignment: Qt.AlignRight
+                    text: "v0.1.0"
+                    color: "gray"
+                }
             }
         }
     }
