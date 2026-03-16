@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import SipClient
+import "../components"
 Item {
     id: root
 
@@ -65,22 +66,7 @@ Item {
                         Layout.fillWidth: true
                         maximumLineCount: 1
                     }
-                }
-                ToolButton {
-                    text: "🔧"
-                    font.pixelSize: 20
-                    Layout.alignment: Qt.AlignRight
-                    Layout.preferredWidth: 40
-                    onClicked: root.openEditor(model)
-                }
-
-                ToolButton {
-                    text: "❌"
-                    font.pixelSize: 20
-                    Layout.alignment: Qt.AlignRight
-                    Layout.preferredWidth: 40
-                    onClicked: accountsManager.contactsModel.removeContact(model.id)
-                }
+                }                
                 // Кнопка вызова
                 ToolButton {
                     text: "📞"
@@ -90,6 +76,22 @@ Item {
                     focusPolicy: Qt.NoFocus
 
                     onClicked: contactCalled(model.phone)
+                }
+                ToolButton {
+                    text: "⋮"
+                    onClicked: menu.open()
+
+                    Menu {
+                        id: menu
+                        MenuItem {
+                            text: "Изменить"
+                            onTriggered: root.openEditor(model)
+                        }
+                        MenuItem {
+                            text: "Удалить"
+                            onTriggered: accountsManager.contactsModel.removeContact(model.id)
+                        }
+                    }
                 }
             }
             Rectangle {
@@ -104,35 +106,117 @@ Item {
     Dialog {
         id: contactDialog
         anchors.centerIn: parent
-        width: parent.width * 0.9
+        width: Math.min(parent.width * 0.9, 400)
         modal: true
-        standardButtons: Dialog.Save | Dialog.Cancel
+        // standardButtons: Dialog.Save | Dialog.Cancel
 
         property int editingId: -1
-
-        ColumnLayout {
-            width: parent.width
-            spacing: 10
-
-            TextField {
-                id: nameField
-                placeholderText: "Имя контакта"
-                Layout.fillWidth: true
-            }
-            TextField {
-                id: phoneField
-                placeholderText: "Номер телефона"
-                inputMethodHints: Qt.ImhDialableCharactersOnly
-                Layout.fillWidth: true
-            }
-            TextArea {
-                id: infoField
-                placeholderText: "Дополнительная информация"
-                Layout.fillWidth: true
-                implicitHeight: 80
+        header: Rectangle {
+            implicitHeight: 70
+            color: "white"
+            radius: 20
+            Column {
+                anchors.centerIn: parent
+                spacing: 4
+                Text {
+                    text: contactDialog.title
+                    font.pixelSize: 20
+                    font.bold: true
+                    color: theme.textPrimary
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+                Rectangle {
+                    width: 40; height: 3
+                    color: theme.accent
+                    radius: 1.5
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
             }
         }
+        background: Rectangle {
+            color: "white"
+            radius: 20
+        }
+        contentItem: ColumnLayout {
+            spacing: 20
+            Layout.margins: 25
 
+            DialogTextField {
+                id: nameField
+                placeholderText: "Имя контакта"
+            }
+
+            DialogTextField {
+                id: phoneField
+                placeholderText: "Номер"
+                inputMethodHints: Qt.ImhDialableCharactersOnly
+            }
+
+            TextArea {
+                id: infoField
+                placeholderText: "Заметки..."
+                Layout.fillWidth: true
+                Layout.preferredHeight: 150
+                font.pixelSize: 14
+                wrapMode: Text.Wrap
+                padding: 12
+
+                background: Rectangle {
+                    radius: 10
+                    color: infoField.activeFocus ? "white" : "#f8f9fa"
+                    border.color: infoField.activeFocus ? theme.accent : "#e2e8f0"
+                    border.width: infoField.activeFocus ? 2 : 1
+                }
+            }
+        }
+        footer: RowLayout {
+            Layout.fillWidth: true
+            height:50
+            spacing: 15
+            Layout.margins: 25
+            Layout.topMargin: 0
+            Layout.bottomMargin: 20
+
+            Button {
+                text: "Отмена"
+                Layout.fillWidth: true
+                Layout.preferredHeight: 45
+                flat: true
+                onClicked: contactDialog.reject()
+                background: Rectangle {
+                    color: "transparent"
+                    radius: 10
+                }
+                contentItem: Text {
+                    text: parent.text
+                    color: theme.textSecondary
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+            }
+
+            Button {
+                id: saveBtn
+                text: "Сохранить"
+                Layout.fillWidth: true
+                Layout.preferredHeight: 45
+                onClicked: contactDialog.accept()
+
+                background: Rectangle {
+                    color: saveBtn.pressed ? Qt.darker(theme.accent, 1.1) : theme.accent
+                    radius: 10
+                }
+
+                contentItem: Text {
+                    text: saveBtn.text
+                    color: "white"
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+            }
+        }
         onAccepted: {
             accountsManager.contactsModel.saveContact(
                 editingId,
@@ -147,8 +231,21 @@ Item {
         anchors.margins: 10
 
         Button {
-            text: "+ Добавить контакт"
+            id: addBtn
             Layout.fillWidth: true
+            highlighted: true
+
+            contentItem: Text {
+                text: "+ Добавить новый контакт"
+                color: "white"
+                font.bold: true
+                horizontalAlignment: Text.AlignHCenter
+            }
+
+            background: Rectangle {
+                color: addBtn.pressed ? Qt.darker(theme.accent, 1.1) : theme.accent
+                radius: 10
+            }
             onClicked: root.openEditor()
         }
         ListView {
@@ -159,7 +256,9 @@ Item {
             delegate: contactDelegate
             spacing: 10
             highlight: Rectangle { color: "lightsteelblue"; radius: 5 }
-            focus: true
+            clip: true
+
+            ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
         }
     }
 }
