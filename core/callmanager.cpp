@@ -139,7 +139,7 @@ void CallManager::makeCall(QString remoteUsername)
     try {
         // Сохранение в бд
         auto timestamp = QDateTime::currentDateTime().toString(Qt::ISODate);
-        auto historyId = m_model->insertCallRecord(accountUsername, uri, timestamp);
+        auto historyId = m_model->insertCallRecord(accountUsername, remoteUsername, timestamp);
         // Установка id для сохранения статуса и длительности в бд по завершению
         call->setHistoryId(historyId);
 
@@ -188,8 +188,9 @@ void CallManager::registerIncomingCall(SipCall *call, SipAccount &callee)
             m_callState = Incoming;
         }
     }
-    auto from {QString::fromStdString(call->getInfo().remoteUri)};
-    auto timestamp = QDateTime::currentDateTime().toString(Qt::ISODate);
+
+    auto from {call->getRemoteNumber()};
+    auto timestamp {QDateTime::currentDateTime().toString(Qt::ISODate)};
     int historyId {m_model->insertCallRecord(from,callee.getUsername(), timestamp)};
     call->setHistoryId(historyId);
     if(isBusy)

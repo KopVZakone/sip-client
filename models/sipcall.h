@@ -12,6 +12,7 @@ public:
     void onCallState(pj::OnCallStateParam &prm) override;
     void onCallMediaState(pj::OnCallMediaStateParam &prm) override;
     void setHistoryId(int id);
+    QString getRemoteNumber() const;
 private:
     int m_historyId;
 };

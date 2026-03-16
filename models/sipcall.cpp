@@ -89,3 +89,20 @@ void SipCall::setHistoryId(int id)
 {
     m_historyId = id;
 }
+
+QString SipCall::getRemoteNumber() const
+{
+    static const QRegularExpression re {"sip:([^@]+)@"};
+    static const QRegularExpression badSymbols {"[<>\"]"};
+    auto rawUri {QString::fromStdString(getInfo().remoteUri)};
+    auto match {re.match(rawUri)};
+
+    QString from;
+    if (match.hasMatch()) {
+        from = match.captured(1); // группа ([^@]+)
+    } else {
+        from = rawUri.remove("sip:").split('@').first();
+    }
+
+    return from.remove(badSymbols).trimmed();
+}
