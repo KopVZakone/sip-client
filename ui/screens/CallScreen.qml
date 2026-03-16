@@ -10,7 +10,8 @@ Item {
                                             callManager.callState === CallManager.Paused ||
                                             callManager.callState === CallManager.Ended;
     readonly property var selectedAccount : accountsManager.selectedAccount
-    readonly property bool activeUserRegistered:  selectedAccount !== null && selectedAccount.regStatus === "registered"
+    readonly property bool activeUserRegistered:  !!selectedAccount //преобразование в bool для проверки и на undefined, и null
+                                                  && selectedAccount.regStatus === "registered";
     ColumnLayout {
         anchors.fill: parent
         spacing: 20

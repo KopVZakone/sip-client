@@ -36,6 +36,7 @@ qt_add_qml_module(appsip-client
         SOURCES models/historyproxymodel.h models/historyproxymodel.cpp
         SOURCES models/contactsmodel.h models/contactsmodel.cpp
         SOURCES core/transportmanager.h core/transportmanager.cpp
+        QML_FILES ui/components/RegStatusLed.qml
 )
 target_include_directories(appsip-client
     PRIVATE

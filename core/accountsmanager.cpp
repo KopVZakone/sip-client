@@ -29,6 +29,10 @@ void AccountsManager::saveAccount(int id, const QString &displayName, const QStr
 void AccountsManager::removeAccount(int id)
 {
     m_model->removeAccount(id);
+    if(id == m_selectedIndex)
+    {
+        selectAccount(-1);
+    }
 }
 void AccountsManager::registerAccount(int id) {
     if(m_account)

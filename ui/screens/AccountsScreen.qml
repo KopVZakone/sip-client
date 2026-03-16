@@ -49,39 +49,11 @@ Item {
                     spacing: 15
 
                     // "лампочка" статуса регистрации
-                    Rectangle {
-                        id: statusLed
-                        width: 10; height: 10; radius: 5
-                        Layout.preferredWidth: 10
+                    RegStatusLed {
+                        status: model.regStatus
                         Layout.preferredHeight: 10
+                        Layout.preferredWidth: 10
                         Layout.alignment: Qt.AlignVCenter
-
-                        color: {
-                            if (model.regStatus === "registered") return "#4CAF50" // Зеленый
-                            if (model.regStatus === "registering") return "#FFC107" // Желтый
-                            if (model.regStatus === "error") return "#F44336"      // Красный
-                            return "#BDBDBD"                                      // Серый (offline)
-                        }
-
-                        // Анимация при попытке подключения
-                        SequentialAnimation {
-                            running: model.regStatus === "registering"
-                            alwaysRunToEnd: true
-                            loops: Animation.Infinite
-
-                            OpacityAnimator {
-                                target: statusLed
-                                from: 1
-                                to: 0.3
-                                duration: 1000
-                            }
-                            OpacityAnimator {
-                                target: statusLed
-                                from: 0.3
-                                to: 1
-                                duration: 1000
-                            }
-                        }
                     }
                     // Имя аккаунта и номер или ошибка регистрации
                     ColumnLayout {
