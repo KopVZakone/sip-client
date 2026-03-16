@@ -12,7 +12,7 @@ class AccountsManager : public QObject
     Q_OBJECT
     Q_PROPERTY(AccountsModel* model READ model CONSTANT)
     Q_PROPERTY(int selectedAccountIndex READ selectedAccountIndex WRITE selectAccount NOTIFY selectedAccountChanged)
-    Q_PROPERTY(QString activeUsername READ activeUsername NOTIFY activeUsernameChanged)
+    Q_PROPERTY(QVariant selectedAccount READ selectedAccount NOTIFY selectedAccountChanged)
     Q_PROPERTY(ContactsModel* contactsModel READ contactsModel CONSTANT)
 public:
     static AccountsManager& instance();
@@ -26,7 +26,7 @@ public:
     Q_INVOKABLE void registerAccount(int id);
     Q_INVOKABLE void unregisterAccount(int id);
     int selectedAccountIndex() const;
-    QString activeUsername() const;
+    QVariant selectedAccount() const;
     void selectAccount(int id);
     SipAccount *getSelectedAccount();
     ~AccountsManager();
@@ -35,7 +35,6 @@ public slots:
     void updateStatus(int id, QString status, QString error = "");
 signals:
     void selectedAccountChanged();
-    void activeUsernameChanged();
 private:
     std::unique_ptr<SipAccount> m_account;
     AccountsModel *m_model;

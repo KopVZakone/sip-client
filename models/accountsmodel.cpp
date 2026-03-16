@@ -62,21 +62,25 @@ QHash<int, QByteArray> AccountsModel::roleNames() const
     return roles;
 }
 
-QVariantMap AccountsModel::getAccountById(int id) const
+QVariant AccountsModel::getAccountById(int id) const
 {
-    auto matches = match(index(0, fieldIndex("id")), Qt::DisplayRole, id, 1, Qt::MatchExactly);
-    if (!matches.isEmpty()) {
-        QModelIndex foundIndex = matches.first();
-        int row = foundIndex.row();
-        return {
-            {"username", data(index(row, 0), UsernameRole)},
-            {"password", data(index(row, 0), PasswordRole)},
-            {"domain",   data(index(row, 0), DomainRole)},
-            {"port",     data(index(row, 0), PortRole)},
-            {"protocol", data(index(row, 0), ProtocolRole)}
-        };
+    auto matches {match(index(0, fieldIndex("id")), Qt::DisplayRole, id, 1, Qt::MatchExactly)};
+    if (matches.isEmpty()) {
+        // возврат null
+        return QVariant {};
     }
-    return {};
+    QModelIndex foundIndex {matches.first()};
+    int row {foundIndex.row()};
+
+    QVariantMap res {};
+
+    auto names { roleNames() };
+    QHashIterator<int, QByteArray> i {names};
+    while (i.hasNext()) {
+        i.next();
+        res[i.value()] = data(index(row, 0), i.key());
+    }
+    return QVariant::fromValue(res);
 }
 
 void AccountsModel::saveAccount(int id, const QString &displayName, const QString &username,const QString &password,

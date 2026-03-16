@@ -36,12 +36,17 @@ void AccountsManager::registerAccount(int id) {
         unregisterAccount(m_account->getAccountId());
     }
     // Получение данных из бд
-    auto accountData {m_model->getAccountById(id)};
+    auto accountDataVar {m_model->getAccountById(id)};
+
+    if (!accountDataVar.isValid())
+        return;
+
+    const QVariantMap accountData = accountDataVar.toMap();
     const QString username {accountData["username"].toString()};
-    const QString password = accountData["password"].toString();
-    const QString domain = accountData["domain"].toString();
-    [[maybe_unused]]const int port = accountData["port"].toInt();
-    [[maybe_unused]]const QString protocol {accountData["protocol"].toString()};
+    const QString password {accountData["password"].toString()};
+    const QString domain {accountData["domain"].toString()};
+    const int port {accountData["port"].toInt()};
+    const QString protocol {accountData["protocol"].toString()};
 
     // Создание транспорта
     auto transportId = TransportManager::instance().createTransport(protocol, port);
@@ -86,24 +91,17 @@ int AccountsManager::selectedAccountIndex() const
     return m_selectedIndex;
 }
 
-QString AccountsManager::activeUsername() const
+QVariant AccountsManager::selectedAccount() const
 {
-    if(m_account
-        && m_account->getAccountId() == m_selectedIndex
-        && m_account->getInfo().regIsActive)
-        return m_account->getUsername();
-    return "";
+    return m_model->getAccountById(m_selectedIndex);
 }
+
 
 void AccountsManager::selectAccount(int id)
 {
     m_selectedIndex = id;
     SettingsManager::instance().setVal(SettingsManager::KeySelectedAccount, id);
     emit selectedAccountChanged();
-    if(m_account && m_account->getAccountId() == m_selectedIndex)
-    {
-        emit activeUsernameChanged();
-    }
 }
 
 AccountsManager::~AccountsManager()
@@ -120,7 +118,7 @@ void AccountsManager::updateStatus(int id, QString status, QString error)
     m_model->updateStatus(id, status, error);
     if(id == m_selectedIndex)
     {
-        emit activeUsernameChanged();
+        emit selectedAccountChanged();
     }
 }
 

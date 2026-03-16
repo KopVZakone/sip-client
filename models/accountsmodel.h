@@ -22,7 +22,7 @@ public:
     // Названия полей для js объекта
     QHash<int, QByteArray> roleNames() const;
 
-    QVariantMap getAccountById(int id) const;
+    QVariant getAccountById(int id) const;
     /**
      * @brief Обновление или создание нового аккаунта если id == -1,
      * по умолчанию не регистрируется

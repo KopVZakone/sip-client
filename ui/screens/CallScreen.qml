@@ -9,7 +9,8 @@ Item {
     readonly property bool isOngoingCall: callManager.callState === CallManager.Active ||
                                             callManager.callState === CallManager.Paused ||
                                             callManager.callState === CallManager.Ended;
-    readonly property bool activeUserRegistered: accountsManager.activeUsername !== ""
+    readonly property var selectedAccount : accountsManager.selectedAccount
+    readonly property bool activeUserRegistered:  selectedAccount !== null && selectedAccount.regStatus === "registered"
     ColumnLayout {
         anchors.fill: parent
         spacing: 20
@@ -17,7 +18,7 @@ Item {
         //Информация о пользователе
         Label {
             text: !root.activeUserRegistered ? "Активный аккаунт не зарегестрирован"
-                                                        : "Активный аккаунт: " + accountsManager.activeUsername
+                                                        : "Активный аккаунт: " + selectedAccount.displayName
             visible: callManager.callState === CallManager.Idle
             Layout.fillWidth: true
             horizontalAlignment: Text.AlignHCenter
