@@ -108,7 +108,6 @@ Item {
         anchors.centerIn: parent
         width: Math.min(parent.width * 0.9, 400)
         modal: true
-        // standardButtons: Dialog.Save | Dialog.Cancel
 
         property int editingId: -1
         header: Rectangle {
@@ -144,12 +143,14 @@ Item {
             DialogTextField {
                 id: nameField
                 placeholderText: "Имя контакта"
+                Layout.fillWidth: true
             }
 
             DialogTextField {
                 id: phoneField
                 placeholderText: "Номер"
                 inputMethodHints: Qt.ImhDialableCharactersOnly
+                Layout.fillWidth: true
             }
 
             TextArea {
@@ -217,6 +218,15 @@ Item {
                 }
             }
         }
+        enter: Transition {
+            NumberAnimation { property: "opacity"; from: 0.0; to: 1.0; duration: 300 }
+            NumberAnimation { property: "scale"; from: 0.9; to: 1.0; duration: 300; easing.type: Easing.OutBack }
+        }
+
+        exit: Transition {
+            NumberAnimation { property: "opacity"; from: 1.0; to: 0.0; duration: 200 }
+            NumberAnimation { property: "scale"; from: 1.0; to: 0.9; duration: 200 }
+        }
         onAccepted: {
             accountsManager.contactsModel.saveContact(
                 editingId,
@@ -257,7 +267,6 @@ Item {
             spacing: 10
             highlight: Rectangle { color: "lightsteelblue"; radius: 5 }
             clip: true
-
             ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
         }
     }

@@ -1,9 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls
-import QtQuick.Layouts
 TextField {
     id: field
-    Layout.fillWidth: true
     font.pixelSize: 15
     leftPadding: 15
     selectByMouse: true
