@@ -15,8 +15,11 @@ ApplicationWindow {
         id: theme
         readonly property color backgroundLight: "#f0f7ff"
         readonly property color sidebarBack: "#e3effd"
+        readonly property color sidebarActive: "#34495e"
         readonly property color accent: "#0078d4"
         readonly property color textPrimary: "#2c3e50"
+        readonly property color textSecondary: "#636e72"
+        readonly property color textOnDark: "#ffffff"
     }
     background: Rectangle {
         color: theme.backgroundLight
@@ -107,12 +110,20 @@ ApplicationWindow {
                 Item { Layout.fillHeight: true }
             }
         }
+        Rectangle {
+            color: "black"
+            Layout.fillHeight: true
+            Layout.preferredWidth: root.sidebarOpen ? 1 : 0
+        }
+
         Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
             StackLayout {
                 id: mainStack
                 anchors.fill: parent
+                anchors.margins: 5
+                anchors.topMargin: 50
                 onCurrentIndexChanged: fadeIn.restart()
 
                 NumberAnimation {
@@ -145,7 +156,7 @@ ApplicationWindow {
                 text: root.sidebarOpen ? "◀" : "▶"
 
                 background: Rectangle {
-                    color: "white"
+                    color: theme.accent
                     radius: 20
                     border.color: theme.sidebarBack
                     opacity: 0.8
