@@ -5,7 +5,7 @@ import SipClient
 import "../utils/Utils.js" as Utils
 Item {
     id: root
-    property alias currentNumber: numberInput.text
+    property alias currentNumber: numberInput.editText
     readonly property bool isOngoingCall: callManager.callState === CallManager.Active ||
                                             callManager.callState === CallManager.Paused ||
                                             callManager.callState === CallManager.Ended;
@@ -27,13 +27,52 @@ Item {
         }
 
         // Поле ввода номера
-        TextField {
+        ComboBox {
             id: numberInput
-            placeholderText: "Введите номер..."
-            visible: callManager.callState === CallManager.Idle
             Layout.fillWidth: true
-            horizontalAlignment: Text.AlignHCenter
-            font.pixelSize: 18
+            editable: true
+            // будущая модель для подсказки
+            model: ["101 (Office)", "102 (Manager)", "79991234567"]
+
+            background: Rectangle {
+                implicitHeight: 45
+                color: "white"
+                border.color: theme.sidebarBack
+                radius: 10
+            }
+        }
+        // Цифровая клавиатура
+        GridLayout {
+            id: dialpad
+            columns: 3
+            rowSpacing: 10
+            columnSpacing: 10
+            Layout.alignment: Qt.AlignHCenter
+
+            Repeater {
+                model: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#"]
+                delegate: Button {
+                    id: dialButton
+                    implicitWidth: 70
+                    implicitHeight: 70
+
+                    contentItem: Text {
+                        text: modelData
+                        font.pixelSize: 24
+                        color: theme.textPrimary
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    background: Rectangle {
+                        color: dialButton.pressed ? Qt.darker(theme.backgroundLight, 1.1) : "white"
+                        radius: 35
+                        border.color: theme.sidebarBack
+                    }
+
+                    onClicked: numberInput.editText += modelData
+                }
+            }
         }
         // Информация о звонке
         ColumnLayout {
@@ -41,7 +80,7 @@ Item {
             spacing: 10
 
             Label {
-                text: callManager.callState === CallManager.Idle ? "Готов к вызову" :
+                text: callManager.callState === CallManager.Idle ? "" :
                       callManager.callState === CallManager.Incoming ? "Входящий звонок" : "Разговор"
                 color: "gray"
                 Layout.alignment: Qt.AlignHCenter
@@ -68,11 +107,26 @@ Item {
             spacing: 20
             // Исходящий вызов
             Button {
-                text: "Вызов"
+                id: callButton
+                Layout.fillWidth: true
+                implicitHeight: 60
+
+                background: Rectangle {
+                    color: callButton.enabled ? "#27ae60" : "gray"
+                    radius: 30
+                }
+
+                contentItem: Text {
+                    text: "ПОЗВОНИТЬ"
+                    color: "white"
+                    font.bold: true
+                    font.pixelSize: 18
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
                 visible: callManager.callState === CallManager.Idle
-                enabled: (numberInput.text !== "") && root.activeUserRegistered
-                onClicked: callManager.makeCall(numberInput.text)
-                highlighted: true
+                enabled: (numberInput.editText !== "") && root.activeUserRegistered
+                onClicked: callManager.makeCall(numberInput.editText)
             }
             Button {
                 text: "Отмена"
@@ -113,7 +167,92 @@ Item {
             }
         }
         // Громкость и mute
-        GroupBox {
+        Rectangle {
+            Layout.fillWidth: true
+            implicitHeight: 120
+            color: theme.sidebarBack
+            radius: 15
+            Layout.topMargin: 10
+
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 15
+                spacing: 10
+
+                // Слайдер динамика
+                RowLayout {
+                    Text { text: "🔊"; font.pixelSize: 18; Layout.preferredWidth: 25 }
+                    Slider {
+                        id: spkSlider
+                        Layout.fillWidth: true
+                        from: 0; to: 100;
+                        value: audioManager.outputVolume
+                        onMoved: audioManager.outputVolume = value
+                    }
+                    Button {
+                        id: muteOutputBtn
+                        checkable: true
+                        checked: audioManager.outputMuted
+                        onClicked: audioManager.outputMuted = checked
+
+                        contentItem: Text {
+                            text: muteOutputBtn.checked ? "MUTED" : "MUTE"
+                            color: muteOutputBtn.checked ? "white" : theme.accent
+                            font.bold: true
+                            font.pixelSize: 10
+                            horizontalAlignment: Qt.AlignHCenter
+                            verticalAlignment: Qt.AlignVCenter
+                        }
+
+                        background: Rectangle {
+                            implicitWidth: 60
+                            implicitHeight: 30
+                            radius: 15
+                            color: muteOutputBtn.checked ? "#e74c3c" : "transparent"
+                            border.color: muteOutputBtn.checked ? "#e74c3c" : theme.accent
+                            border.width: 1
+                        }
+                    }
+                }
+
+                // Слайдер микрофона
+                RowLayout {
+                    Text { text: "🎤"; font.pixelSize: 18; Layout.preferredWidth: 25 }
+                    Slider {
+                        id: micSlider
+                        Layout.fillWidth: true
+                        from: 0; to: 100;
+                        value: audioManager.inputVolume
+                        onMoved: audioManager.inputVolume = value
+                    }
+                    Button {
+                        id: muteInputBtn
+                        checkable: true
+                        checked: audioManager.inputMuted
+                        onClicked: audioManager.inputMuted = checked
+
+                        contentItem: Text {
+                            text: muteInputBtn.checked ? "MUTED" : "MUTE"
+                            color: muteInputBtn.checked ? "white" : theme.accent
+                            font.bold: true
+                            font.pixelSize: 10
+                            horizontalAlignment: Qt.AlignHCenter
+                            verticalAlignment: Qt.AlignVCenter
+                        }
+
+                        background: Rectangle {
+                            implicitWidth: 60
+                            implicitHeight: 30
+                            radius: 15
+                            color: muteInputBtn.checked ? "#e74c3c" : "transparent"
+                            border.color: muteInputBtn.checked ? "#e74c3c" : theme.accent
+                            border.width: 1
+                        }
+                    }
+                }
+            }
+        }
+        /* GroupBox {
             title: "Аудио"
             Layout.fillWidth: true
             RowLayout {
@@ -124,20 +263,10 @@ Item {
                         text: "Микрофон"
                         font.pixelSize: 10
                     }
-                    Slider {
-                        id: micSlider
-                        from: 0
-                        to: 100
-                        value: audioManager.inputVolume
-                        onMoved: audioManager.inputVolume = value
-                        Layout.fillWidth: true
-                    }
                 }
                 ToolButton {
                     text: audioManager.inputMuted ? "🎤❌" : "🎤"
                     checkable: true
-                    checked: audioManager.inputMuted
-                    onClicked: audioManager.inputMuted = checked
                 }
 
                 Item { Layout.preferredWidth: 20 }
@@ -159,11 +288,9 @@ Item {
                 ToolButton {
                     text: audioManager.outputMuted ? "🔇" : "🔊"
                     checkable: true
-                    checked: audioManager.outputMuted
-                    onClicked: audioManager.outputMuted = checked
                 }
             }
-        }
+        }*/
     }
     // Debug панель
     GroupBox {
