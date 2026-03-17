@@ -81,7 +81,6 @@ void CallManager::pauseCall()
 
 void CallManager::resumeCall()
 {
-    // TODO: пофиксить отключение собеседника после 10-20 секунд после продолжения разговора
     if (auto call = getSafeCall()) {
         pj::CallOpParam prm {true};
         prm.opt.flag = PJSUA_CALL_UNHOLD;

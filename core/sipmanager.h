@@ -7,8 +7,7 @@ class SipManager
 public:
     static SipManager& instance();
     /**
-    * @brief Инициализирует и запускает ядро PJSIP в однопоточном режиме
-    * (threadCnt=0)
+    * @brief Инициализирует и запускает ядро PJSIP в многопоточном режиме
     * @note Необходимо вызвать перед обращением к функциям библиотеки
     */
     void start();

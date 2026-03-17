@@ -1,7 +1,5 @@
 #include "historyproxymodel.h"
 
-#include "historymodel.h"
-
 HistoryProxyModel::HistoryProxyModel(QSqlTableModel *model) : QSortFilterProxyModel{}
 {
     setSourceModel(model);
