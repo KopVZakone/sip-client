@@ -12,8 +12,7 @@ QString CallManager::remoteCallerNumber()
 {
     if (auto call = getSafeCall())
     {
-        pj::CallInfo ci = m_currentCall->getInfo();
-        return QString::fromStdString(ci.remoteUri);
+        return call->getRemoteNumber();
     } else {
         return "";
     }
@@ -84,8 +83,9 @@ void CallManager::resumeCall()
 {
     // TODO: пофиксить отключение собеседника после 10-20 секунд после продолжения разговора
     if (auto call = getSafeCall()) {
-        pj::CallOpParam prm;
+        pj::CallOpParam prm {true};
         prm.opt.flag = PJSUA_CALL_UNHOLD;
+        prm.opt.audioCount = 1;
         try {
             call->reinvite(prm);
             m_callState = Active;
