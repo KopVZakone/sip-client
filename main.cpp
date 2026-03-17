@@ -8,6 +8,7 @@
 #include "sipmanager.h"
 #include "accountsmanager.h"
 #include "audiomanager.h"
+#include "chatmanager.h"
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
@@ -21,6 +22,7 @@ int main(int argc, char *argv[])
     auto& accountsManager = AccountsManager::instance();
     auto& audioManager = AudioManager::instance();
     auto& callManager = CallManager::instance();
+    auto& chatManager = ChatManager::instance();
     audioManager.applySettings();
     accountsManager.applySettings();
     QQmlApplicationEngine engine;
@@ -28,6 +30,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("accountsManager", &accountsManager);
     engine.rootContext()->setContextProperty("audioManager", &audioManager);
     engine.rootContext()->setContextProperty("callManager", &callManager);
+    engine.rootContext()->setContextProperty("chatManager", &chatManager);
     const QUrl url(QStringLiteral("qrc:/SipClient/ui/Main.qml"));
     QObject::connect(
         &engine,

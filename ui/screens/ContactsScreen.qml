@@ -8,7 +8,8 @@ Item {
 
     // сигнал для навигации на экран звонка
     signal contactCalled(string number)
-
+    // сигнал для навигации на экран чата
+    signal chatSelected(string number)
 
     function openEditor(contData = null) {
         if (contData) {
@@ -67,6 +68,20 @@ Item {
                         maximumLineCount: 1
                     }
                 }                
+                // Кнопка открытия чата
+                ToolButton {
+                    text: "💬"
+                    font.pixelSize: 20
+                    Layout.alignment: Qt.AlignRight
+                    Layout.preferredWidth: 40
+                    focusPolicy: Qt.NoFocus
+                    ToolTip.visible: hovered
+                    ToolTip.text: "Написать сообщение"
+                    onClicked: {
+                        chatManager.openChat(model.phone)
+                        chatSelected(model.phone)
+                    }
+                }
                 // Кнопка вызова
                 ToolButton {
                     text: "📞"
@@ -74,7 +89,8 @@ Item {
                     Layout.alignment: Qt.AlignRight
                     Layout.preferredWidth: 40
                     focusPolicy: Qt.NoFocus
-
+                    ToolTip.visible: hovered
+                    ToolTip.text: "Позвонить"
                     onClicked: contactCalled(model.phone)
                 }
                 ToolButton {

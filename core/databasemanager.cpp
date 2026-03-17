@@ -54,34 +54,22 @@ void DatabaseManager::createTables() {
            "from_number TEXT, to_number TEXT, "
            "status TEXT, duration INTEGER, "
            "timestamp TEXT)");
+    // Таблица настроек
     q.exec("CREATE TABLE IF NOT EXISTS settings ("
            "key TEXT PRIMARY KEY, value TEXT)");
-
+    // Таблица сообщений
+    q.exec("CREATE TABLE IF NOT EXISTS messages ("
+           "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+           "remote_number TEXT, "
+           "message_text TEXT, "
+           "is_outgoing INTEGER, "
+           "timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,"
+           "is_read INTEGER)");
+    // Индекс для отображения чата с конкретным собеседником
+    q.exec("CREATE INDEX IF NOT EXISTS idx_remote_number ON messages(remote_number)");
 }
 
 void DatabaseManager::seedTables()
 {
-    QSqlQuery q;
 
-    // Контакты
-    q.exec("DELETE FROM contacts");
-    q.prepare("INSERT INTO contacts (name, phone, info) VALUES (?, ?, ?)");
-    q.addBindValue("Alice"); q.addBindValue("123-456"); q.addBindValue("Some info");
-    q.exec();
-
-    q.addBindValue("Bob"); q.addBindValue("987-654"); q.addBindValue(
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum faucibus volutpat gravida. Sed mollis tellus risus,"
-                    "sed rhoncus ipsum volutpat eget. Sed a commodo ante, et tincidunt odio."
-                    "Quisque elementum quam non mi sollicitudin congue. Vestibulum ante ipsum"
-                    "primis in faucibus orci luctus et ultrices posuere cubilia curae;"
-                    "Phasellus in semper quam, in viverra risus. Pellentesque scelerisque"
-                    "consectetur lectus, eu pretium erat tempus ac. Curabitur augue tellus,"
-                    "luctus non posuere finibus, finibus vel libero. Ut lobortis, nibh a accumsan dignissim,"
-                    "purus erat condimentum libero, in ultricies nibh nunc hendrerit leo. Aenean iaculis ultrices"
-                    "est id vehicula. Etiam sit amet tincidunt ipsum. Vivamus vel ex tincidunt,"
-                    "lacinia lacus maximus, tristique orci. Fusce varius risus nec accumsan hendrerit. ");
-    q.exec();
-
-    q.addBindValue("Charlie a daosijoidjaoisj xzi cwsdasd"); q.addBindValue("555-111"); q.addBindValue("");
-    q.exec();
 }

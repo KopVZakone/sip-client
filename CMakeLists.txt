@@ -38,6 +38,13 @@ qt_add_qml_module(appsip-client
         SOURCES core/transportmanager.h core/transportmanager.cpp
         QML_FILES ui/components/RegStatusLed.qml
         QML_FILES ui/components/DialogTextField.qml
+        QML_FILES ui/screens/ChatScreen.qml
+        QML_FILES ui/components/SelectedAccountInfo.qml
+        QML_FILES ui/components/ChatList.qml
+        SOURCES core/chatmanager.h core/chatmanager.cpp
+        SOURCES models/chatlistmodel.h models/chatlistmodel.cpp
+        SOURCES models/messagesmodel.h models/messagesmodel.cpp
+        SOURCES models/chatproxymodel.h models/chatproxymodel.cpp
 )
 target_include_directories(appsip-client
     PRIVATE

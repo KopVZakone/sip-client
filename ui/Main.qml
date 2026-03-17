@@ -1,7 +1,8 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import SipClient
+import SipClient;
+import "components"
 ApplicationWindow {
     id: root
     width: 600
@@ -46,41 +47,11 @@ ApplicationWindow {
                 anchors.margins: 10
                 spacing: 5
 
-                RowLayout {
-                    id: selectedAccountInfo
+                SelectedAccountInfo {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 60
-                    spacing: 15
-                    readonly property var selectedAccount : accountsManager.selectedAccount
-                    // "лампочка" статуса регистрации
-                    RegStatusLed {
-                        status: selectedAccountInfo.selectedAccount ?
-                                    selectedAccountInfo.selectedAccount.regStatus :
-                                    "offline";
-                        Layout.preferredHeight: 10
-                        Layout.preferredWidth: 10
-                        Layout.alignment: Qt.AlignVCenter
-                    }
-                    // Имя аккаунта и номер или ошибка регистрации
-                    ColumnLayout {
-                        spacing: 2
-                        Label {
-                            text: selectedAccountInfo.selectedAccount ?
-                                      selectedAccountInfo.selectedAccount.displayName :
-                                      "Нет аккаунта"
-                            font.bold: true; font.pixelSize: 16
-                            color: "black"
-                        }
-                        Label {
-                            text: selectedAccountInfo.selectedAccount  ? (
-                                selectedAccountInfo.selectedAccount.regStatus === "error" ?
-                                      "Ошибка: " + selectedAccountInfo.selectedAccount.lastError
-                                    : selectedAccountInfo.selectedAccount.username) : "";
-                            font.pixelSize: 11
-                            color: selectedAccountInfo.selectedAccount && selectedAccountInfo.selectedAccount.regStatus === "error" ? "#F44336" : "#757575"
-                        }
-                    }
                 }
+
                 // Список кнопок для навигации
                 Repeater {
                     model: [
@@ -93,17 +64,25 @@ ApplicationWindow {
 
                     delegate: Button {
                         Layout.fillWidth: true
+                        id: delegateRoot
                         flat: true
                         text: modelData.name
 
                         // Подсветка активной кнопки
                         background: Rectangle {
-                            color: mainStack.currentIndex === index ? "white" : "transparent"
+                            color: mainStack.currentIndex === index ? "white" : (delegateRoot.hovered ? "#f8f9fa" : "transparent")
                             radius: 5
                             border.color: mainStack.currentIndex === index ? theme.accent : "transparent"
                         }
 
                         onClicked: mainStack.currentIndex = index
+                    }
+                }
+                ChatList {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    onChatSelected: (number) => {
+                        mainStack.currentIndex = 5
                     }
                 }
 
@@ -139,10 +118,14 @@ ApplicationWindow {
                         callScreen.currentNumber = number
                         mainStack.currentIndex = 0
                     }
+                    onChatSelected: (number) => {
+                        mainStack.currentIndex = 5
+                    }
                 }
                 HistoryScreen {}
                 AccountsScreen {}
                 SettingsScreen {}
+                ChatScreen { id: chatScreen }
             }
             Button {
                 id: toggleButton

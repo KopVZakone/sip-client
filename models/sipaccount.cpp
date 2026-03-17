@@ -1,7 +1,7 @@
 #include "sipaccount.h"
 #include "sipcall.h"
 #include "callmanager.h"
-
+#include "chatmanager.h"
 
 SipAccount::SipAccount(int id, QString username, QString domain, pjsua_transport_id transportId)
     : pj::Account{}, m_id{id}, m_username{username}, m_domain{domain}, m_transportId {transportId}
@@ -41,6 +41,16 @@ void SipAccount::onIncomingCall(pj::OnIncomingCallParam &prm)
     CallManager::instance().registerIncomingCall(currentCall, *this);
 }
 
+void SipAccount::onInstantMessage(pj::OnInstantMessageParam &prm)
+{
+    QString from {QString::fromStdString(prm.fromUri)};
+    QString text {QString::fromStdString(prm.msgBody)};
+
+    QString number {parseSipUri(from)};
+
+    ChatManager::instance().receiveMessage(number, text);
+}
+
 QString SipAccount::getUsername() const
 {
     return m_username;
@@ -59,4 +69,20 @@ int SipAccount::getAccountId() const
 pjsua_transport_id SipAccount::getTransportId() const
 {
     return m_transportId;
+}
+
+QString SipAccount::parseSipUri(QString uri)
+{
+    static const QRegularExpression re {"sip:([^@]+)@"};
+    static const QRegularExpression badSymbols {"[<>\"]"};
+    auto match {re.match(uri)};
+
+    QString number;
+    if (match.hasMatch()) {
+        number = match.captured(1); // группа ([^@]+)
+    } else {
+        number = uri.remove("sip:").split('@').first();
+    }
+
+    return number.remove(badSymbols).trimmed();
 }

@@ -27,6 +27,7 @@ public:
      *  Посылает сигнал incomingCall
      */
     void onIncomingCall(pj::OnIncomingCallParam &prm) override;
+    void onInstantMessage(pj::OnInstantMessageParam &prm) override;
     QString getUsername() const;
     QString getDomain() const;
     int getAccountId() const;
@@ -38,6 +39,7 @@ private:
     QString m_username;
     QString m_domain;
     pjsua_transport_id m_transportId;
+    QString parseSipUri(QString uri);
 };
 
 #endif // SIPACCOUNT_H
