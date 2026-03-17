@@ -45,6 +45,7 @@ qt_add_qml_module(appsip-client
         SOURCES models/chatlistmodel.h models/chatlistmodel.cpp
         SOURCES models/messagesmodel.h models/messagesmodel.cpp
         SOURCES models/chatproxymodel.h models/chatproxymodel.cpp
+        QML_FILES ui/components/CallBar.qml
 )
 target_include_directories(appsip-client
     PRIVATE

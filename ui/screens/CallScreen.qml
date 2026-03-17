@@ -15,30 +15,40 @@ Item {
     ColumnLayout {
         anchors.fill: parent
         spacing: 20
-
-        //Информация о пользователе
-        Label {
-            text: !root.activeUserRegistered ? "Активный аккаунт не зарегестрирован"
-                                                        : "Активный аккаунт: " + selectedAccount.displayName
-            visible: callManager.callState === CallManager.Idle
-            Layout.fillWidth: true
-            horizontalAlignment: Text.AlignHCenter
-            font.pixelSize: 18
-        }
-
         // Поле ввода номера
         ComboBox {
             id: numberInput
             Layout.fillWidth: true
             editable: true
+            font.pixelSize: 22
+            font.bold: true
+            visible: callManager.callState === CallManager.Idle
             // будущая модель для подсказки
-            model: ["101 (Office)", "102 (Manager)", "79991234567"]
-
+            model: ["100", "102", "79991234567"]
+            contentItem: TextField {
+                text: numberInput.editText
+                font: numberInput.font
+                color: theme.textPrimary
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+                leftPadding: 15
+                rightPadding: 0
+                background: Item {}
+            }
             background: Rectangle {
                 implicitHeight: 45
                 color: "white"
                 border.color: theme.sidebarBack
                 radius: 10
+            }
+            delegate: ItemDelegate {
+                width: numberInput.width
+                contentItem: Text {
+                    text: modelData
+                    font.pixelSize: 18
+                    verticalAlignment: Text.AlignVCenter
+                }
+                highlighted: numberInput.highlightedIndex === index
             }
         }
         // Цифровая клавиатура
@@ -48,7 +58,7 @@ Item {
             rowSpacing: 10
             columnSpacing: 10
             Layout.alignment: Qt.AlignHCenter
-
+            visible: callManager.callState === CallManager.Idle
             Repeater {
                 model: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#"]
                 delegate: Button {
@@ -76,94 +86,140 @@ Item {
         }
         // Информация о звонке
         ColumnLayout {
+            id: callInfoContainer
             Layout.alignment: Qt.AlignCenter
-            spacing: 10
+            Layout.fillWidth: true
+            spacing: 12
+
+            visible: callManager.callState !== CallManager.Idle
 
             Label {
-                text: callManager.callState === CallManager.Idle ? "" :
-                      callManager.callState === CallManager.Incoming ? "Входящий звонок" : "Разговор"
-                color: "gray"
+                text: {
+                    switch(callManager.callState) {
+                        case CallManager.Incoming: return "ВХОДЯЩИЙ ВЫЗОВ"
+                        case CallManager.Dialing:  return "НАБОР НОМЕРА..."
+                        case CallManager.Active:   return "РАЗГОВОР"
+                        case CallManager.Paused:   return "НА ПАУЗЕ"
+                        default: return ""
+                    }
+                }
+                font.pixelSize: 24
+                font.letterSpacing: 1.5
+                font.bold: true
+                color: callManager.callState === CallManager.Incoming ? "#3498db" : "#95a5a6"
                 Layout.alignment: Qt.AlignHCenter
             }
 
             Label {
-                text: callManager.callState === CallManager.Idle ? "": callManager.remoteCallerNumber
-                visible: text !== ""
-                font.bold: true; font.pixelSize: 32
+                text: callManager.remoteCallerNumber
+                font.pixelSize: 42
+                font.weight: Font.Light
+                color: "#2c3e50"
                 Layout.alignment: Qt.AlignHCenter
+
+                Behavior on text {
+                    SequentialAnimation {
+                        NumberAnimation { target: parent; property: "opacity"; to: 0; duration: 100 }
+                        PropertyAction { }
+                        NumberAnimation { target: parent; property: "opacity"; to: 1; duration: 200 }
+                    }
+                }
             }
 
-            Label {
-                text: Utils.formatTime(callManager.callDuration)
-                visible: root.isOngoingCall
-                font.family: "Monospace"
-                font.pixelSize: 20
+            Rectangle {
                 Layout.alignment: Qt.AlignHCenter
+                implicitWidth: timerLabel.implicitWidth + 30
+                implicitHeight: 34
+                radius: 17
+                color: "#f8f9fa"
+                visible: root.isOngoingCall || callManager.callState === CallManager.Paused
+
+                RowLayout {
+                    anchors.centerIn: parent
+                    spacing: 6
+
+                    Label {
+                        id: timerLabel
+                        text: Utils.formatTime(callManager.callDuration)
+                        font.family: "Monospace"
+                        font.pixelSize: 18
+                        font.weight: Font.Medium
+                        color: callManager.callState === CallManager.Paused ? "#e67e22" : "#2c3e50"
+                    }
+                }
             }
         }
         // Кнопки управления
         RowLayout {
             Layout.alignment: Qt.AlignCenter
             spacing: 20
-            // Исходящий вызов
-            Button {
-                id: callButton
+            component ControlButton : Button {
+                id: btn
+                property color baseColor: "#2ecc71"
+
                 Layout.fillWidth: true
                 implicitHeight: 60
 
                 background: Rectangle {
-                    color: callButton.enabled ? "#27ae60" : "gray"
                     radius: 30
-                }
+                    color: btn.enabled ? (btn.pressed ? Qt.darker(baseColor, 1.2) :
+                                         (btn.hovered ? Qt.lighter(baseColor, 1.1) : baseColor))
+                                       : "#bdc3c7"
 
+                    Behavior on color { ColorAnimation { duration: 100 } }
+                }
                 contentItem: Text {
-                    text: "ПОЗВОНИТЬ"
-                    color: "white"
+                    text: btn.text
                     font.bold: true
-                    font.pixelSize: 18
+                    font.pixelSize: 16
+                    color: "white"
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                 }
+            }
+            // Исходящий вызов
+            ControlButton {
+                text: "ПОЗВОНИТЬ"
+                baseColor: "#27ae60"
                 visible: callManager.callState === CallManager.Idle
                 enabled: (numberInput.editText !== "") && root.activeUserRegistered
                 onClicked: callManager.makeCall(numberInput.editText)
             }
-            Button {
-                text: "Отмена"
+            ControlButton {
+                text: "ОТМЕНА"
+                baseColor: "#e74c3c"
                 visible: callManager.callState === CallManager.Dialing
-                palette.button: "#e74c3c";
                 onClicked: callManager.abortDialingCall()
-                highlighted: true
             }
             // Активный вызов
-            Button {
-                text: "Пауза"
-                visible: root.isOngoingCall
-                checkable: true
-                onClicked: {
-                    if (!checked) {
-                        callManager.resumeCall()
-                    } else {
-                        callManager.pauseCall()
-                    }
-                }
-            }
-            Button {
-                text: "Сброс"
-                visible: root.isOngoingCall
-                palette.button: "#e74c3c";
-                onClicked: callManager.hangupCall()
-            }
-            // Входящий вызов
-            Button {
-                text: "Принять"
+            ControlButton {
+                text: "ПРИНЯТЬ"
+                baseColor: "#2ecc71"
                 visible: callManager.callState === CallManager.Incoming
                 onClicked: callManager.acceptIncomingCall()
             }
-            Button {
-                text: "Отклонить"
+            ControlButton {
+                text: "ОТКЛОНИТЬ"
+                baseColor: "#e74c3c"
                 visible: callManager.callState === CallManager.Incoming
                 onClicked: callManager.declineIncomingCall()
+            }
+            ControlButton {
+                id: pauseBtn
+                text: checked ? "ПРОДОЛЖИТЬ" : "ПАУЗА"
+                baseColor: checked ? "#f39c12" : "#3498db"
+                visible: root.isOngoingCall
+                checkable: true
+                onClicked: {
+                    if (!checked) callManager.resumeCall()
+                    else callManager.pauseCall()
+                }
+            }
+            ControlButton {
+                text: "СБРОС"
+                baseColor: "#e74c3c"
+                visible: root.isOngoingCall
+                onClicked: callManager.hangupCall()
             }
         }
         // Громкость и mute
@@ -252,56 +308,17 @@ Item {
                 }
             }
         }
-        /* GroupBox {
-            title: "Аудио"
-            Layout.fillWidth: true
-            RowLayout {
-                anchors.fill: parent
-
-                ColumnLayout {
-                    Label {
-                        text: "Микрофон"
-                        font.pixelSize: 10
-                    }
-                }
-                ToolButton {
-                    text: audioManager.inputMuted ? "🎤❌" : "🎤"
-                    checkable: true
-                }
-
-                Item { Layout.preferredWidth: 20 }
-
-                ColumnLayout {
-                    Label {
-                        text: "Динамик"
-                        font.pixelSize: 10
-                    }
-                    Slider {
-                        id: spkSlider
-                        from: 0
-                        to: 100
-                        value: audioManager.outputVolume
-                        onMoved: audioManager.outputVolume = value
-                        Layout.fillWidth: true
-                    }
-                }
-                ToolButton {
-                    text: audioManager.outputMuted ? "🔇" : "🔊"
-                    checkable: true
-                }
-            }
-        }*/
     }
     // Debug панель
-    GroupBox {
-        title: "Debug"
-        anchors.top: parent.top
-        anchors.right: parent.right
-        RowLayout {
-            spacing: 10
-            Label {
-                text: callManager.callState
-            }
-        }
-    }
+    // GroupBox {
+    //     title: "Debug"
+    //     anchors.top: parent.top
+    //     anchors.right: parent.right
+    //     RowLayout {
+    //         spacing: 10
+    //         Label {
+    //             text: callManager.callState
+    //         }
+    //     }
+    // }
 }

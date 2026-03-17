@@ -95,14 +95,43 @@ ApplicationWindow {
             Layout.preferredWidth: root.sidebarOpen ? 1 : 0
         }
 
-        Item {
+        ColumnLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 50
+                Button {
+                    id: toggleButton
+                    Layout.preferredHeight: 35
+                    Layout.preferredWidth: 35
+                    Layout.margins: 10
+                    flat: true
+
+                    text: root.sidebarOpen ? "◀" : "▶"
+
+                    background: Rectangle {
+                        color: theme.accent
+                        radius: 18
+                        border.color: theme.sidebarBack
+                        opacity: 0.8
+                    }
+
+                    onClicked: root.sidebarOpen = !root.sidebarOpen
+                }
+
+                CallBar {
+                    Layout.fillWidth: true
+                    show: mainStack.currentIndex !== 0
+                }
+            }
+
             StackLayout {
                 id: mainStack
-                anchors.fill: parent
-                anchors.margins: 5
-                anchors.topMargin: 50
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                Layout.margins: 5
+                Layout.topMargin: 0
                 onCurrentIndexChanged: fadeIn.restart()
 
                 NumberAnimation {
@@ -126,26 +155,6 @@ ApplicationWindow {
                 AccountsScreen {}
                 SettingsScreen {}
                 ChatScreen { id: chatScreen }
-            }
-            Button {
-                id: toggleButton
-                x: 10
-                y: 10
-                z: 10 // поверх интерфейса
-                width: 40
-                height: 40
-                flat: true
-
-                text: root.sidebarOpen ? "◀" : "▶"
-
-                background: Rectangle {
-                    color: theme.accent
-                    radius: 20
-                    border.color: theme.sidebarBack
-                    opacity: 0.8
-                }
-
-                onClicked: root.sidebarOpen = !root.sidebarOpen
             }
         }
     }
