@@ -160,13 +160,15 @@ Item {
 
                 // Индикатор активного аккаунта
                 Rectangle {
-                    visible: delegateRoot.isActive
-                    width: 6; height: parent.height - 20
+                    width: 6;
+                    height: delegateRoot.isActive ? parent.height - 20 : 0
                     radius: 3
                     color: theme.accent
                     anchors.left: parent.left
                     anchors.leftMargin: 6
                     anchors.verticalCenter: parent.verticalCenter
+
+                    Behavior on height { NumberAnimation { duration: 200; easing.type: Easing.OutBack } }
                 }
             }
         }

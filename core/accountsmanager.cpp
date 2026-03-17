@@ -19,6 +19,11 @@ AccountsManager &AccountsManager::instance()
 void AccountsManager::applySettings()
 {
     selectAccount(SettingsManager::instance().getValue(SettingsManager::KeySelectedAccount, -1));
+    auto activeAccountId {SettingsManager::instance().getValue(SettingsManager::KeyActiveAccount, -1)};
+    if (activeAccountId > -1)
+    {
+        registerAccount(activeAccountId);
+    }
 }
 
 void AccountsManager::saveAccount(int id, const QString &displayName, const QString &username, const QString &password, const QString &domain, int port, const QString &protocol)
@@ -72,6 +77,7 @@ void AccountsManager::registerAccount(int id) {
         m_account = std::make_unique<SipAccount>(id, username, domain, transportId.value());
         connect(m_account.get(), &SipAccount::registrationStatusChanged, this, &AccountsManager::updateStatus);
         m_account->create(acc_cfg);
+        SettingsManager::instance().setVal(SettingsManager::KeyActiveAccount, id);
     }
     catch(pj::Error& err)
     {
@@ -87,6 +93,7 @@ void AccountsManager::unregisterAccount(int id)
         TransportManager::instance().releaseTransport(m_account->getTransportId());
         m_account.reset();
         updateStatus(id, "offline");
+        SettingsManager::instance().setVal(SettingsManager::KeyActiveAccount, -1);
     }
 }
 

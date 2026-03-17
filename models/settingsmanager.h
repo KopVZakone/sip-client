@@ -31,6 +31,7 @@ public:
     static constexpr const char* KeyInputDevice  = "input_name";
     static constexpr const char* KeyOutputDevice = "output_name";
     static constexpr const char* KeySelectedAccount = "selected_account";
+    static constexpr const char* KeyActiveAccount = "active_account";
     void setVal(QString key, QVariant value);
 private:
     explicit SettingsManager(QObject *parent = nullptr);
