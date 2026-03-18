@@ -23,7 +23,7 @@ void AudioManager::setDeviceByName(const QString &name, bool isInput)
 {
     auto& mgr = pj::Endpoint::instance().audDevManager();
     for (const auto& info : mgr.enumDev2()) {
-        if (QString::fromUtf8(info.name.c_str()) == name) {
+        if (QString::fromLocal8Bit(info.name.c_str()) == name) {
             try {
                 if (isInput)
                     mgr.setCaptureDev(info.id);
@@ -70,9 +70,9 @@ void AudioManager::refreshDeviceLists()
 
     for (const auto& info : mgr.enumDev2()) {
         if (info.inputCount > 0)
-            m_inputs << QString::fromUtf8(info.name.c_str());
+            m_inputs << QString::fromLocal8Bit(info.name.c_str());
         if (info.outputCount > 0)
-            m_outputs << QString::fromUtf8(info.name.c_str());
+            m_outputs << QString::fromLocal8Bit(info.name.c_str());
     }
     emit devicesChanged();
 }
@@ -139,7 +139,7 @@ QString AudioManager::outputDevice() const
     int outputDevId = mgr.getPlaybackDev();
 
     auto outputInfo = mgr.getDevInfo(outputDevId);
-    return QString::fromUtf8(outputInfo.name.c_str());
+    return QString::fromLocal8Bit(outputInfo.name.c_str());
 }
 
 QString AudioManager::inputDevice() const
@@ -148,7 +148,7 @@ QString AudioManager::inputDevice() const
     int inputDevId = mgr.getCaptureDev();
 
     auto inputInfo = mgr.getDevInfo(inputDevId);
-    return QString::fromUtf8(inputInfo.name.c_str());
+    return QString::fromLocal8Bit(inputInfo.name.c_str());
 }
 AudioManager::AudioManager() {
     refreshDeviceLists();
