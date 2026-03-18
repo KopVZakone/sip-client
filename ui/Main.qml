@@ -3,6 +3,8 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import SipClient;
 import "components"
+import "screens"
+import "utils"
 ApplicationWindow {
     id: root
     width: 600

@@ -2,6 +2,8 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 import SipClient
+import "../components"
+import "../utils"
 ScrollView {
     id: settingsScroll
     Layout.fillWidth: true
@@ -107,7 +109,7 @@ ScrollView {
                 text: "Версия приложения"
                 Label {
                     Layout.alignment: Qt.AlignRight
-                    text: "v0.1.0"
+                    text: "v1.0.0"
                     color: "gray"
                 }
             }

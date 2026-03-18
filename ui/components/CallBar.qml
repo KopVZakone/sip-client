@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Layouts
 import QtQuick.Controls
 import SipClient
+import "../utils"
 Rectangle {
     id: root
     height: 50

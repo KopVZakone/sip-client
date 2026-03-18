@@ -1,5 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls
+import SipClient
+import "../utils"
 TextField {
     id: field
     font.pixelSize: 15

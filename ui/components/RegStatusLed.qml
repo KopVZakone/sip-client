@@ -1,5 +1,6 @@
 import QtQuick 2.15
-
+import SipClient
+import "../utils"
 Rectangle {
     id: statusLed
     property string status: "offline"

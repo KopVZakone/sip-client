@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import SipClient
+import "../components"
 import "../utils/Utils.js" as Utils
 Item {
     // Элемент списка
