@@ -12,8 +12,16 @@
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
+    QCoreApplication::setOrganizationName("KopVZakone");
+    QCoreApplication::setApplicationName("SipClient");
     //Инициализация бд
-    QString path = "sip_client.db";
+    QString dataDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir dir(dataDir);
+    if (!dir.exists()) {
+        dir.mkpath(".");
+    }
+
+    QString path = dir.filePath("sip_client.db");
     DatabaseManager dbManager {path};
 
     // Инициализация библиотеки pjsip
