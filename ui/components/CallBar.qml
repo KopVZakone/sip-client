@@ -107,6 +107,26 @@ Rectangle {
                     else callManager.hangupCall()
                 }
             }
+            Button {
+                id: declineBtn
+                implicitWidth: 40; implicitHeight: 40
+                visible: callManager.callState === CallManager.Incoming
+                background: Rectangle {
+                    radius: 20
+                    color:  "#e74c3c"
+                }
+
+                contentItem: Text {
+                    text: "x"
+                    color: "white"
+                    font.pixelSize: 16
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+
+                }
+
+                onClicked: callManager.declineIncomingCall()
+            }
         }
     }
 

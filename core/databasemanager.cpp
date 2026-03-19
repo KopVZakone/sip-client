@@ -12,9 +12,7 @@ DatabaseManager::~DatabaseManager() {
     if (m_db.isOpen()) {
         m_db.close();
     }
-    QString connectionName = m_db.connectionName();
     m_db = QSqlDatabase();
-    QSqlDatabase::removeDatabase(connectionName);
 }
 
 bool DatabaseManager::openDatabase(const QString &path) {
@@ -31,7 +29,6 @@ bool DatabaseManager::openDatabase(const QString &path) {
         return false;
     }
     createTables();
-    seedTables();
     return true;
 }
 
